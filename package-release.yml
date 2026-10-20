@@ -1,0 +1,126 @@
+name: Package AirSign release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Existing published release tag to package (for example v1.0.9)'
+        required: true
+        default: 'v1.0.9'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    name: Build ZIP and attach it to the GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the release source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag_name }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify tag matches extension version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name || inputs.tag_name }}
+        run: |
+          set -euo pipefail
+          tag_version="${TAG_NAME#v}"
+          manifest_version="$(node -p "require('./manifest.json').version")"
+          if [ "$tag_version" != "$manifest_version" ]; then
+            echo "Tag $TAG_NAME does not match manifest version $manifest_version."
+            echo "Update manifest.json and create a matching release tag before packaging."
+            exit 1
+          fi
+          echo "Release tag and manifest both use version $manifest_version."
+
+      - name: Install pinned MediaPipe dependency and prepare local assets
+        run: |
+          set -euo pipefail
+          npm install --no-audit --no-fund
+          npm run prepare-extension
+
+      - name: Validate source and required runtime files
+        run: |
+          set -euo pipefail
+          node --check sidepanel.js
+          node --check content.js
+          node --check service-worker.js
+          node --check permission.js
+          node --check tracker.js
+          python3 - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          manifest = json.loads(Path('manifest.json').read_text(encoding='utf-8'))
+          if manifest.get('manifest_version') != 3:
+              sys.exit('Expected a Manifest V3 extension.')
+
+          required = [
+              'manifest.json', 'sidepanel.html', 'sidepanel.js', 'sidepanel.css',
+              'content.js', 'service-worker.js', 'permission.html', 'permission.js',
+              'tracker.html', 'tracker.js',
+              'package.json', 'setup.bat', 'README.md',
+              'scripts/prepare-vendor.cjs',
+              'icons/icon16.png', 'icons/icon48.png', 'icons/icon128.png',
+              'vendor/hands.js', 'vendor/hands.binarypb',
+              'vendor/hand_landmark_full.tflite', 'vendor/hand_landmark_lite.tflite',
+              'vendor/hands_solution_packed_assets_loader.js',
+              'vendor/hands_solution_packed_assets.data',
+              'vendor/hands_solution_simd_wasm_bin.data',
+              'vendor/hands_solution_simd_wasm_bin.js',
+              'vendor/hands_solution_simd_wasm_bin.wasm',
+              'vendor/hands_solution_wasm_bin.js',
+              'vendor/hands_solution_wasm_bin.wasm',
+          ]
+          missing = [name for name in required if not Path(name).is_file()]
+          if missing:
+              sys.exit('Required release file(s) missing:\n - ' + '\n - '.join(missing))
+          print('Manifest, JavaScript syntax, and required release files are valid.')
+          PY
+
+      - name: Create installable ZIP
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name || inputs.tag_name }}
+        run: |
+          set -euo pipefail
+          stage="dist/extension"
+          mkdir -p "$stage"
+          cp manifest.json sidepanel.html sidepanel.js sidepanel.css content.js service-worker.js permission.html permission.js tracker.html tracker.js package.json setup.bat README.md "$stage/"
+          cp -R scripts icons vendor "$stage/"
+          if [ -f LICENSE ]; then cp LICENSE "$stage/"; fi
+          if [ -f LICENSE.md ]; then cp LICENSE.md "$stage/"; fi
+          if [ -f THIRD_PARTY_NOTICES.md ]; then cp THIRD_PARTY_NOTICES.md "$stage/"; fi
+          (cd "$stage" && zip -q -r "../AirSign-${TAG_NAME}.zip" .)
+          sha256sum "dist/AirSign-${TAG_NAME}.zip" > "dist/AirSign-${TAG_NAME}.zip.sha256"
+          echo "Created dist/AirSign-${TAG_NAME}.zip"
+
+      - name: Attach ZIP and checksum to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.event.release.tag_name || inputs.tag_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh release upload "$TAG_NAME" \
+            "dist/AirSign-${TAG_NAME}.zip" \
+            "dist/AirSign-${TAG_NAME}.zip.sha256" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+          {
+            echo '### AirSign release package uploaded'
+            echo
+            echo "- Package: AirSign-${TAG_NAME}.zip"
+            echo "- Checksum: AirSign-${TAG_NAME}.zip.sha256"
+          } >> "$GITHUB_STEP_SUMMARY"
