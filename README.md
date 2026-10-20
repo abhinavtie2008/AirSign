@@ -11,6 +11,9 @@
 
 ---
 
+
+AirSign is a lightweight browser extension designed for seamless air-gesture and sign recognition directly in your browser. This repository contains both the core Chrome extension source code and a live testing sandbox.
+
 ## Overview
 
 AirSign is an experimental Chrome extension that turns hand movements into webpage controls. It uses **MediaPipe Hands** to track your hand in real time, then sends gesture information to the webpage you are browsing.
