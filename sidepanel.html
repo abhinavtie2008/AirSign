@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AirSign</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div>
+        <div class="brand">Air<span>Sign</span></div>
+        <div class="tagline">TOUCHLESS BROWSING</div>
+      </div>
+      <div id="statusDot" class="status-dot" title="Stopped"></div>
+    </header>
+
+    <section class="intro">
+      <div class="eyebrow">HANDS-FREE CONTROL</div>
+      <h1>Browse beyond<br>the mouse.</h1>
+      <p>Use your webcam to move, click, drag, and scroll across the page in front of you.</p>
+    </section>
+
+    <section class="camera-card" aria-label="Camera preview">
+      <div class="camera-frame">
+        <video id="video" playsinline muted autoplay aria-label="Live AirSign webcam preview"></video>
+        <canvas id="overlay" aria-hidden="true"></canvas>
+        <div id="cameraPlaceholder" class="camera-placeholder">
+          <div class="camera-icon">◎</div>
+          <div>Live camera preview will appear here</div>
+          <small>Camera and hand tracking run right here in the side panel.</small>
+        </div>
+        <div class="camera-badge"><span></span><span id="cameraState">CAMERA OFF</span></div>
+      </div>
+      <div class="status-row">
+        <div><div class="label">TRACKING</div><div id="gestureStatus" class="status-value">Not started</div></div>
+        <div class="status-pill" id="handStatus">NO HAND</div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button id="startBtn" class="primary"><span class="button-icon">▶</span> Start AirSign</button>
+      <button id="stopBtn" class="secondary" disabled>Stop tracking</button>
+    </div>
+    <section id="targetInfo" class="target-info" aria-live="polite"><strong>Target webpage:</strong> Select a regular website, then start AirSign.</section>
+
+    <div id="message" class="message" role="status">Click Start to control the active webpage. If camera access has not been granted yet, Chrome requires a one-time permission tab; after that, tracking runs here in the side panel.</div>
+
+    <section class="gesture-section">
+      <div class="section-head"><span class="eyebrow">GESTURE GUIDE</span><span class="small-muted">4 controls</span></div>
+      <div class="gesture-list">
+        <div class="gesture"><div class="gesture-emoji">☝️</div><div><strong>Point</strong><small>Move your index finger to move the cursor.</small></div></div>
+        <div class="gesture"><div class="gesture-emoji">🤏</div><div><strong>Pinch</strong><small>Touch thumb and index finger to click.</small></div></div>
+        <div class="gesture"><div class="gesture-emoji">✊</div><div><strong>Fist</strong><small>Close your hand, move to drag, then open to release.</small></div></div>
+        <div class="gesture"><div class="gesture-emoji">✌️</div><div><strong>Two fingers</strong><small>Raise index and middle fingers, then move up or down to scroll.</small></div></div>
+      </div>
+    </section>
+
+    <footer><span class="privacy-icon">◈</span> Local processing · No video is uploaded</footer>
+  </main>
+  <script src="vendor/hands.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

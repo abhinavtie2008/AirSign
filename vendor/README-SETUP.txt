@@ -1,0 +1,1 @@
+MediaPipe runtime files are not bundled yet. Run setup.bat once from the extension folder to download the pinned @mediapipe/hands package and copy the required files here, then reload the unpacked extension in chrome://extensions.

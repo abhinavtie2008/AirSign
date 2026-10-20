@@ -1,0 +1,12 @@
+{
+  "name": "airsign-chrome-extension",
+  "version": "1.0.9",
+  "private": true,
+  "description": "AirSign touchless browsing Chrome extension; tracking in side panel with one-time camera permission bootstrap.",
+  "scripts": {
+    "prepare-extension": "node scripts/prepare-vendor.cjs"
+  },
+  "dependencies": {
+    "@mediapipe/hands": "0.4.1675469240"
+  }
+}
