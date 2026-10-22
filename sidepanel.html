@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AirSign</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="brand-block">
+        <div class="brand">Air<span>Sign</span></div>
+        <div class="tagline">TOUCHLESS BROWSING</div>
+      </div>
+      <div id="statusDot" class="status-dot" title="Stopped" aria-hidden="true"></div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">HANDS-FREE CONTROL</div>
+      <h1>Browse beyond<br>the mouse.</h1>
+      <p>Point to move. Pinch to click. Close your fist to drag, or raise two fingers to scroll.</p>
+    </section>
+
+    <section class="camera-card" aria-label="Camera preview and tracking status">
+      <div class="camera-frame">
+        <canvas id="preview" width="640" height="480" aria-label="Webcam preview with hand landmarks"></canvas>
+        <div id="cameraPlaceholder" class="camera-placeholder">
+          <div class="camera-glyph" aria-hidden="true">◎</div>
+          <div>Camera preview</div>
+          <small>Hand tracking runs locally in this panel.</small>
+        </div>
+        <div class="camera-badge"><span class="live-dot" aria-hidden="true"></span><span id="cameraState">CAMERA OFF</span></div>
+        <div id="gestureChip" class="gesture-chip">NO HAND</div>
+      </div>
+      <div class="status-row">
+        <div class="status-block">
+          <div class="label">TRACKING</div>
+          <div id="trackingStatus" class="status-value">Not started</div>
+        </div>
+        <div class="status-side">
+          <span id="handPill" class="hand-pill">NO HAND</span>
+          <span id="fpsLabel" class="fps">— FPS</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="calibrationCard" class="calibration-card" hidden aria-live="polite">
+      <div class="calibration-head">
+        <div>
+          <div class="eyebrow">PINCH CALIBRATION</div>
+          <h2 id="calibrationTitle">Show an open hand</h2>
+        </div>
+        <span id="calibrationStep" class="step-pill">1 / 2</span>
+      </div>
+      <p id="calibrationCopy" class="calibration-copy">Hold your hand open, palm toward the camera, with all fingers inside the preview.</p>
+      <div class="calibration-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Calibration progress">
+        <span id="calibrationBar"></span>
+      </div>
+      <div class="calibration-foot">
+        <span id="calibrationLive">Waiting for a hand…</span>
+        <div class="calibration-actions">
+          <button id="calibrationRetry" class="link-btn" type="button" hidden>Try again</button>
+          <button id="calibrationCancel" class="link-btn" type="button">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button id="startBtn" class="primary" type="button"><span class="btn-play" aria-hidden="true"></span><span id="startLabel">Start AirSign</span></button>
+      <button id="stopBtn" class="secondary" type="button" disabled>Stop</button>
+    </div>
+    <button id="bubbleBtn" class="bubble-btn" type="button" title="Shrink AirSign to a draggable camera bubble on the page" hidden>
+      <span class="pip-icon" aria-hidden="true"></span>
+      <span>Minimize to camera bubble</span>
+    </button>
+
+    <section class="target-card" aria-label="Target webpage">
+      <div class="target-head">
+        <span class="label">TARGET PAGE</span>
+        <button id="sandboxBtn" class="link-btn" type="button">Open test page</button>
+      </div>
+      <div id="targetTitle" class="target-title">No page selected</div>
+      <div class="target-foot">
+        <span id="targetUrl" class="target-url">Open a website, then start AirSign.</span>
+        <span id="bridgeState" class="bridge-state">—</span>
+      </div>
+    </section>
+
+    <div id="message" class="message" role="status" aria-live="polite">Start AirSign, then switch to the page you want to control. Your camera stays on this device.</div>
+
+    <details class="tuning" id="tuning">
+      <summary>
+        <span>Tuning</span>
+        <span id="tuningSummary" class="summary-value">Balanced · 35</span>
+      </summary>
+      <div class="tuning-body">
+        <div class="field">
+          <div class="field-head"><span class="field-label">Reach</span><span id="reachHint" class="hint">Comfortable hand travel</span></div>
+          <div class="segmented" role="group" aria-label="Cursor reach">
+            <button type="button" data-reach="compact" aria-pressed="false">Compact</button>
+            <button type="button" data-reach="balanced" aria-pressed="true">Balanced</button>
+            <button type="button" data-reach="wide" aria-pressed="false">Wide</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label class="field-label" for="smoothing">Smoothing</label><span id="smoothingValue" class="hint">35</span></div>
+          <input id="smoothing" type="range" min="0" max="100" step="5" value="35">
+        </div>
+        <div class="field switch-field">
+          <div>
+            <div class="field-label">Mirror camera</div>
+            <div class="hint">Move your hand right, cursor moves right.</div>
+          </div>
+          <label class="switch"><input id="mirror" type="checkbox" checked><span class="switch-track" aria-hidden="true"></span></label>
+        </div>
+        <div class="field switch-field">
+          <div>
+            <div class="field-label">Click assist</div>
+            <div class="hint">Highlight a nearby target and snap the click to it.</div>
+          </div>
+          <label class="switch"><input id="assist" type="checkbox" checked><span class="switch-track" aria-hidden="true"></span></label>
+        </div>
+        <div class="field">
+          <div class="field-head">
+            <span class="field-label">Pinch calibration</span>
+            <span id="calibrationState" class="hint">Default</span>
+          </div>
+          <div class="calibration-row">
+            <button id="calibrateBtn" class="calibrate-btn" type="button">Calibrate pinch</button>
+            <button id="resetCalibrationBtn" class="link-btn" type="button" disabled>Reset</button>
+          </div>
+          <p class="hint calibration-hint">Fit clicks to your own hand shape. The defaults work for most hands.</p>
+        </div>
+      </div>
+    </details>
+
+    <section class="gesture-section" aria-label="Gesture guide">
+      <div class="section-head"><span class="eyebrow">GESTURE GUIDE</span><span class="small-muted">4 controls</span></div>
+      <div class="gesture-grid">
+        <div class="gesture"><span class="gesture-num">01</span><div><strong>Point</strong><small>Index finger moves the cursor.</small></div></div>
+        <div class="gesture"><span class="gesture-num">02</span><div><strong>Pinch</strong><small>Thumb to index fires one click.</small></div></div>
+        <div class="gesture"><span class="gesture-num">03</span><div><strong>Fist</strong><small>Grab, move, then open to drop.</small></div></div>
+        <div class="gesture"><span class="gesture-num">04</span><div><strong>Two fingers</strong><small>Move up or down to scroll.</small></div></div>
+      </div>
+    </section>
+
+    <footer>
+      <span class="privacy-dot" aria-hidden="true"></span>
+      Local processing. No video is uploaded.
+    </footer>
+  </main>
+
+  <video id="video" playsinline muted autoplay hidden></video>
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

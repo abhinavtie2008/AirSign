@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Enable the AirSign camera</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b14;
+      --panel: #11162a;
+      --panel-2: #171e36;
+      --border: rgba(255, 255, 255, .1);
+      --border-strong: rgba(255, 255, 255, .18);
+      --text: #eef1ff;
+      --muted: #98a2c6;
+      --purple: #7c5cff;
+      --cyan: #22d3ee;
+      --green: #34d399;
+      --red: #fb7185;
+      --amber: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background:
+        radial-gradient(900px 520px at 10% -5%, rgba(124, 92, 255, .3), transparent 62%),
+        radial-gradient(700px 400px at 100% 10%, rgba(34, 211, 238, .13), transparent 62%),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    .card {
+      width: min(100%, 560px);
+      padding: 32px;
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      background: linear-gradient(160deg, rgba(23, 30, 54, .96), rgba(13, 18, 33, .98));
+      box-shadow: 0 30px 90px rgba(0, 0, 0, .45);
+      text-align: center;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 26px;
+      font-size: 18px;
+      font-weight: 850;
+      letter-spacing: -.5px;
+    }
+    .mark {
+      width: 30px; height: 30px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 2.5px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--purple), #5b8cff 55%, var(--cyan));
+      box-shadow: 0 6px 18px rgba(124, 92, 255, .35);
+    }
+    .mark i { width: 2.5px; height: 10px; border-radius: 3px; background: #fff; transform: rotate(22deg); }
+    .mark i:nth-child(2) { height: 17px; }
+    .brand em { font-style: normal; background: linear-gradient(90deg, var(--purple), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .glyph {
+      width: 72px; height: 72px;
+      margin: 0 auto 18px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(34, 211, 238, .3);
+      background: rgba(34, 211, 238, .07);
+      color: var(--cyan);
+      font-size: 34px;
+      box-shadow: 0 0 42px rgba(34, 211, 238, .16);
+      transition: color .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+    body.granted .glyph {
+      color: var(--green);
+      border-color: rgba(52, 211, 153, .38);
+      background: rgba(52, 211, 153, .09);
+      box-shadow: 0 0 42px rgba(52, 211, 153, .2);
+    }
+    body.granted .glyph::before { content: "✓"; font-size: 32px; font-weight: 700; }
+    body.granted .glyph span { display: none; }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 4vw, 34px);
+      line-height: 1.12;
+      letter-spacing: -1.1px;
+      font-weight: 850;
+    }
+    .lead { margin: 0 auto 22px; max-width: 44ch; color: var(--muted); font-size: 14px; }
+    .lead strong { color: var(--text); font-weight: 700; }
+
+    .steps {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 24px;
+      text-align: left;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .022);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .step b {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      display: grid; place-items: center;
+      border-radius: 7px;
+      background: rgba(124, 92, 255, .18);
+      color: #cfc6ff;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .actions { display: grid; gap: 9px; }
+    button, .link-btn {
+      font: inherit;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: transform .15s ease, filter .15s ease, background .15s ease;
+    }
+    button {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid var(--border-strong);
+      background: rgba(255, 255, 255, .05);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 750;
+    }
+    button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
+    button:disabled { opacity: .55; cursor: wait; transform: none; }
+    button.primary {
+      border: 0;
+      background: linear-gradient(125deg, var(--purple), #5c8cff);
+      box-shadow: 0 12px 32px rgba(124, 92, 255, .3);
+    }
+    button.secondary { background: rgba(255, 255, 255, .045); font-weight: 650; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+    .status {
+      margin-top: 16px;
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .status.error { color: #fecdd3; }
+    .status.success { color: #a7f3d0; }
+    .status .spinner {
+      display: inline-block;
+      width: 12px; height: 12px;
+      margin-right: 7px;
+      vertical-align: -1px;
+      border: 2px solid rgba(255, 255, 255, .25);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .privacy {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, .06);
+      color: var(--muted);
+      font-size: 11.5px;
+    }
+    .privacy::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 9px rgba(52, 211, 153, .8);
+    }
+
+    [hidden] { display: none !important; }
+    @media (max-width: 480px) {
+      body { padding: 14px; }
+      .card { padding: 24px 20px; border-radius: 20px; }
+      .steps { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      Air<em>Sign</em>
+    </div>
+
+    <div class="glyph" aria-hidden="true"><span>◎</span></div>
+    <h1 id="title">Let AirSign see your hand</h1>
+    <p class="lead" id="lead">Chrome doesn't always show the camera prompt inside the side panel. Allow access once on this page, and AirSign can use the camera directly in the panel from now on.</p>
+
+    <div class="steps">
+      <div class="step"><b>1</b><span>Click <strong>Allow camera access</strong> below.</span></div>
+      <div class="step"><b>2</b><span>Choose <strong>Allow</strong> in Chrome's camera prompt.</span></div>
+      <div class="step"><b>3</b><span>This tab closes itself and tracking starts in the side panel.</span></div>
+    </div>
+
+    <div class="actions">
+      <button id="grantBtn" class="primary" type="button">Allow camera access</button>
+      <button id="settingsBtn" class="secondary" type="button" hidden>Open camera settings</button>
+      <button id="closeBtn" class="secondary" type="button" hidden>Close this tab</button>
+    </div>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <div class="privacy">The camera is used only for local hand tracking. No video is uploaded.</div>
+  </main>
+
+  <script src="permission.js"></script>
+</body>
+</html>

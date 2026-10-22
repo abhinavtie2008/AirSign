@@ -1,0 +1,17 @@
+{
+  "name": "airsign-extension",
+  "version": "2.3.0",
+  "private": true,
+  "description": "Gesture-controlled browsing in Chrome, running MediaPipe hand tracking locally in the side panel or a camera bubble.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/gestures.test.mjs tests/one-euro.test.mjs",
+    "check": "node --check background.js && node --check content.js && node --check bubble.js && node --check offscreen.js && node --check sidepanel.js && node --check permission.js && node --check sandbox.js && node --check lib/gestures.mjs && node --check lib/one-euro.mjs",
+    "check:docs": "node tools/check-docs.mjs",
+    "package": "node tools/package-release.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
