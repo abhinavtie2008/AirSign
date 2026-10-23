@@ -7,7 +7,7 @@
 
 Touchless browsing for Chrome. Point, pinch, drag, and scroll with your hand.
 
-**[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.3.0](https://github.com/abhinavtie2008/AirSign/releases/latest)**
+**[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.3.1](https://github.com/abhinavtie2008/AirSign/releases/latest)**
 
 **Jump to:** [Install](#install) · [Gestures](#gestures) · [Camera bubble](#camera-bubble) · [Tuning](#tuning) · [Test page](#the-test-page) · [Privacy](#privacy) · [Troubleshooting](#troubleshooting) · [Development](#development)
 
@@ -31,7 +31,7 @@ This is an experimental hackathon project, not a sign-language translator. It un
 
 ## Install
 
-1. Download `AirSign-v2.3.0.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
+1. Download `AirSign-v2.3.1.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
 2. Open `chrome://extensions`.
 3. Turn on **Developer mode** (top-right).
 4. Click **Load unpacked** and select the folder that contains `manifest.json`.
