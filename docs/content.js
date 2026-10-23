@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '2.3.0';
+  const VERSION = '2.3.1';
   if (window.__airsignBridgeVersion) {
     if (window.__airsignBridgeVersion !== VERSION) {
       console.warn(`AirSign: page bridge ${window.__airsignBridgeVersion} is stale; reload this page.`);
