@@ -9,6 +9,7 @@
     "test": "node --test tests/gestures.test.mjs tests/one-euro.test.mjs",
     "check": "node --check background.js && node --check content.js && node --check bubble.js && node --check offscreen.js && node --check sidepanel.js && node --check permission.js && node --check sandbox.js && node --check lib/gestures.mjs && node --check lib/one-euro.mjs",
     "check:docs": "node tools/check-docs.mjs",
+    "verify": "npm run check && npm run check:docs && npm test && npm run package",
     "package": "node tools/package-release.mjs"
   },
   "engines": {
