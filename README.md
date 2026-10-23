@@ -1,5 +1,18 @@
 # AirSign
 
+[![Latest release](https://img.shields.io/github/v/release/abhinavtie2008/AirSign?label=release)](https://github.com/abhinavtie2008/AirSign/releases/latest)
+[![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://abhinavtie2008.github.io/AirSign/)
+[![Chrome 116+](https://img.shields.io/badge/Chrome-116%2B-4285F4?logo=googlechrome&logoColor=white)](#requirements)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+Touchless browsing for Chrome. Point, pinch, drag, and scroll with your hand.
+
+**[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.3.0](https://github.com/abhinavtie2008/AirSign/releases/latest)**
+
+**Jump to:** [Install](#install) · [Gestures](#gestures) · [Camera bubble](#camera-bubble) · [Tuning](#tuning) · [Test page](#the-test-page) · [Privacy](#privacy) · [Troubleshooting](#troubleshooting) · [Development](#development)
+
+
+
 Touchless browsing for Chrome. AirSign turns hand movements into real webpage interactions using a webcam, while MediaPipe hand tracking runs locally inside Chrome — in the side panel, or in an extension offscreen document when you shrink AirSign to a camera bubble.
 
 **Point** to move the cursor, **pinch** to click, close a **fist** to drag, and raise **two fingers** to scroll. No mouse, no touch, no server.
