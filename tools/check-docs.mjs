@@ -93,21 +93,27 @@ for (const file of wasmFiles) {
   check(sha256(extension) === sha256(docs), `docs/vendor/wasm/${file} is stale.`);
 }
 
-const [contentSource, demoSource, docsIndex] = await Promise.all([
-  read('content.js'),
-  read('docs/demo.js'),
-  read('docs/index.html')
-]);
-const versionPattern = new RegExp(`const VERSION = '${manifest.version.replaceAll('.', '\\.')}'`);
-check(versionPattern.test(contentSource.toString('utf8')), `content.js VERSION does not match manifest ${manifest.version}.`);
-check(versionPattern.test(demoSource.toString('utf8')), `docs/demo.js VERSION does not match manifest ${manifest.version}.`);
-check(docsIndex.toString('utf8').includes('src="./content.js"'), 'docs/index.html does not load the page bridge (docs/content.js).');
-check(docsIndex.toString('utf8').includes('src="./demo.js"'), 'docs/index.html does not load the showcase module (docs/demo.js).');
+const versionedFiles = [
+  'background.js', 'bubble.js', 'content.js', 'offscreen.js', 'sandbox.js',
+  'lib/gestures.mjs', 'docs/demo.js'
+];
+const declaredVersion = (source) =>
+  source.match(/(?:const VERSION|GESTURE_VERSION) = '([^']+)'/)?.[1] ?? null;
 
-const pageText = docsIndex.toString('utf8');
-check(!pageText.includes('vendor/vision_bundle.mjs'), 'docs/index.html should use the .js vision bundle copy.');
-check(!pageText.includes('lib/gestures.mjs'), 'docs/index.html should use the .js engine copy.');
+for (const file of versionedFiles) {
+  const source = (await read(file)).toString('utf8');
+  check(
+    declaredVersion(source) === manifest.version,
+    `${file} version does not match manifest ${manifest.version}.`
+  );
+}
 
+const docsIndex = (await read('docs/index.html')).toString('utf8');
+check(docsIndex.includes('src="./content.js"'), 'docs/index.html does not load the page bridge (docs/content.js).');
+check(docsIndex.includes('src="./demo.js"'), 'docs/index.html does not load the showcase module (docs/demo.js).');
+
+check(!docsIndex.includes('vendor/vision_bundle.mjs'), 'docs/index.html should use the .js vision bundle copy.');
+check(!docsIndex.includes('lib/gestures.mjs'), 'docs/index.html should use the .js engine copy.');
 if (failures.length) {
   console.error(`Docs check failed with ${failures.length} issue(s):`);
   for (const failure of failures) console.error(`- ${failure}`);
