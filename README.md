@@ -206,6 +206,6 @@ AirSign dispatches synthetic (untrusted) DOM events, because a web page cannot m
 
 ## License
 
-MIT. See [LICENSE.txt](LICENSE.txt).
+MIT. See [LICENSE](LICENSE).
 
 MediaPipe is licensed separately; see `vendor/MEDIAPIPE-README.md` and the upstream project.
