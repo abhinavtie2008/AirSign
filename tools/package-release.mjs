@@ -23,7 +23,7 @@ const files = [
   'manifest.json', 'background.js', 'bubble.js', 'content.js',
   'offscreen.html', 'offscreen.js', 'permission.html', 'permission.js',
   'sandbox.html', 'sandbox.js', 'sidepanel.css', 'sidepanel.html', 'sidepanel.js',
-  'README.md', 'LICENSE.txt'
+  'README.md', 'LICENSE'
 ];
 const folders = ['lib', 'vendor', 'icons'];
 
