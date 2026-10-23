@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '2.3.0';
+const VERSION = '2.3.1';
 
 const $ = (id) => document.getElementById(id);
 const framePill = $('framePill');
