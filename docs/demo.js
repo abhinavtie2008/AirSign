@@ -1,6 +1,6 @@
 import { createGestureEngine, HAND_CONNECTIONS, POSE_LABELS, REACH_PRESETS } from './lib/gestures.js';
 
-const VERSION = '2.3.0';
+const VERSION = '2.3.1';
 const SETTINGS_KEY = 'airsign.demo.settings.v1';
 const BUBBLE_KEY = 'airsign.demo.bubble.v1';
 
