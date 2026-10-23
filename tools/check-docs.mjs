@@ -47,7 +47,7 @@ const runtimeFiles = [
   'vendor/wasm/vision_wasm_internal.js', 'vendor/wasm/vision_wasm_internal.wasm',
   'vendor/wasm/vision_wasm_nosimd_internal.js', 'vendor/wasm/vision_wasm_nosimd_internal.wasm',
   'icons/icon16.png', 'icons/icon48.png', 'icons/icon128.png',
-  'README.md', 'LICENSE.txt'
+  'README.md', 'LICENSE'
 ];
 
 const docsFiles = [
