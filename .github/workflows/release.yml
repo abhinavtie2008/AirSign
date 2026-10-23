@@ -54,10 +54,11 @@ jobs:
           VERSION=$(node -p "JSON.parse(require('node:fs').readFileSync('manifest.json', 'utf8')).version")
           TAG="v${VERSION}"
           ZIP="dist/AirSign-v${VERSION}.zip"
+          STORE="dist/AirSign-v${VERSION}-store.zip"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$ZIP" "${ZIP}.sha256" --clobber
+            gh release upload "$TAG" "$ZIP" "${ZIP}.sha256" "$STORE" "${STORE}.sha256" --clobber
           else
-            gh release create "$TAG" "$ZIP" "${ZIP}.sha256" \
+            gh release create "$TAG" "$ZIP" "${ZIP}.sha256" "$STORE" "${STORE}.sha256" \
               --title "AirSign v${VERSION}" \
               --generate-notes
           fi
