@@ -53,12 +53,12 @@ async function requestCamera() {
   busy = true;
   grantBtn.disabled = true;
   grantBtn.textContent = 'Requesting camera…';
-  setStatus('Waiting for Chrome… choose “Allow” in the prompt.', 'busy');
+  setStatus('Waiting for your browser… choose “Allow” in the prompt.', 'busy');
 
   let stream;
   try {
     if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
-      throw new Error('This page has no camera API. Update Chrome and try again.');
+      throw new Error('This page has no camera API. Update your browser and try again.');
     }
     stream = await navigator.mediaDevices.getUserMedia({
       video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
@@ -94,7 +94,7 @@ async function requestCamera() {
     const name = error && error.name;
     let message;
     if (name === 'NotAllowedError' || name === 'SecurityError') {
-      message = 'Camera access was blocked. Click the camera icon in Chrome’s address bar and choose “Always allow”, or open Chrome settings below.';
+      message = 'Camera access was blocked. Click the camera icon in your browser’s address bar and choose “Allow”, or open the camera settings below.';
     } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
       message = 'No camera was found. Connect a webcam, then try again.';
     } else if (name === 'NotReadableError') {
@@ -123,9 +123,9 @@ closeBtn.addEventListener('click', () => {
     const permission = await navigator.permissions.query({ name: 'camera' });
     if (permission.state === 'granted') {
       grantBtn.textContent = 'Check camera access';
-      setStatus('Chrome already allows camera access for AirSign. Click below to verify it and return.');
+      setStatus('Your browser already allows camera access for AirSign. Click below to verify it and return.');
     } else if (permission.state === 'denied') {
-      setStatus('Camera access is currently blocked. Open Chrome settings to allow it for AirSign.', 'error');
+      setStatus('Camera access is currently blocked. Open your browser’s camera settings to allow it for AirSign.', 'error');
       settingsBtn.hidden = false;
       grantBtn.textContent = 'Try anyway';
     }

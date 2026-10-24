@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '2.3.1';
+const VERSION = '2.3.2';
 const BUBBLE_KEY = 'airsignBubbleState';
 const RESTORE_KEY = 'airsignRestorePending';
 const OFFSCREEN_URL = 'offscreen.html';
@@ -259,7 +259,7 @@ async function exitBubble(opening) {
   if (!opened) {
     return {
       ok: false,
-      error: 'Chrome did not open the side panel. Click the AirSign toolbar icon to restore it.'
+      error: 'Your browser did not open the side panel. Click the AirSign toolbar icon to restore it.'
     };
   }
 
