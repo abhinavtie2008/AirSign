@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AirSign — Your hand is the pointer</title>
-  <meta name="description" content="Point, pinch, drag and scroll the web through your webcam. AirSign tracks your hand locally in Chrome — nothing leaves your machine. Try the live playground before you install.">
+  <meta name="description" content="Point, pinch, drag and scroll the web through your webcam. AirSign tracks your hand locally in your browser — nothing leaves your machine. Try the live playground before you install.">
   <meta name="theme-color" content="#05070c">
   <meta property="og:title" content="AirSign — Your hand is the pointer">
-  <meta property="og:description" content="Touchless browsing with on-device hand tracking for Chrome. Try the real gesture engine in your browser, no install required.">
+  <meta property="og:description" content="Touchless browsing with on-device hand tracking for Chrome and Edge. Try the real gesture engine in your browser, no install required.">
   <meta property="og:type" content="website">
   <link rel="icon" href="./icon128.png" type="image/png">
   <link rel="stylesheet" href="./styles.css">
@@ -48,7 +48,7 @@
     <section class="hero">
       <div class="shell hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="pulse-dot"></span> On-device hand tracking for Chrome</p>
+          <p class="eyebrow"><span class="pulse-dot"></span> On-device hand tracking for Chrome and Edge</p>
           <h1>Your hand<br>is the <em>pointer.</em></h1>
           <p class="lede">Move with a fingertip. Click with a pinch. Drag with a fist, scroll with two fingers. AirSign turns your webcam into a mouse — and keeps every frame on your machine.</p>
 
@@ -61,7 +61,7 @@
           <dl class="hero-metrics">
             <div><dt>Processing</dt><dd>100% local</dd></div>
             <div><dt>Tracking</dt><dd>~30 fps</dd></div>
-            <div><dt>Requires</dt><dd>Chrome 116+</dd></div>
+            <div><dt>Requires</dt><dd>Chrome or Edge 116+</dd></div>
           </dl>
         </div>
 
@@ -488,31 +488,31 @@
       <div class="shell install-grid">
         <div class="install-copy">
           <p class="kicker"><span>05</span> Install</p>
-          <h2>One download.<br>Then it lives in Chrome.</h2>
+          <h2>One download.<br>Then it lives in your browser.</h2>
           <p class="install-lede">AirSign 2.3 is a local Manifest V3 extension. The hand-tracking model is bundled, so the installer is big but the setup is small: unzip, load once, point forever.</p>
 
           <ol class="steps">
-            <li><span class="step-no">01</span><div><strong>Download the build</strong><p>Grab <code>AirSign-v2.3.1.zip</code> from the latest GitHub release and unzip it somewhere you'll remember.</p></div></li>
-            <li><span class="step-no">02</span><div><strong>Open your extensions</strong><p>Visit <code>chrome://extensions</code> and switch on <strong>Developer mode</strong> in the top right.</p></div></li>
+            <li><span class="step-no">01</span><div><strong>Download the build</strong><p>Grab <code>AirSign-v2.3.2.zip</code> from the latest GitHub release and unzip it somewhere you'll remember.</p></div></li>
+            <li><span class="step-no">02</span><div><strong>Open your extensions</strong><p>Visit <code>chrome://extensions</code> in Chrome or <code>edge://extensions</code> in Edge, and switch on <strong>Developer mode</strong> in the top right.</p></div></li>
             <li><span class="step-no">03</span><div><strong>Load unpacked</strong><p>Choose <strong>Load unpacked</strong> and select the unzipped folder — the one containing <code>manifest.json</code>.</p></div></li>
             <li><span class="step-no">04</span><div><strong>Point at something</strong><p>Click the AirSign icon, allow camera access, and start with your hand. Minimize the panel into a bubble whenever you want the screen back.</p></div></li>
           </ol>
 
-          <p class="install-note">Chrome or Edge 116+ on desktop recommended. Camera permission is requested on first run and can be revoked at any time. Not on the Chrome Web Store yet — unpacked is the supported install for 2.3.</p>
+          <p class="install-note">Chrome or Edge 116+ on desktop recommended. Camera permission is requested on first run and can be revoked at any time. Not in an extension store yet — unpacked is the supported install for 2.3.</p>
         </div>
 
         <aside class="download-card">
           <div class="download-top">
             <span class="brand-mark brand-mark-lg" aria-hidden="true"><span></span></span>
-            <span class="version-pill">v2.3.1</span>
+            <span class="version-pill">v2.3.2</span>
           </div>
-          <h3>AirSign for Chrome</h3>
+          <h3>AirSign for Chrome and Edge</h3>
           <p>The side panel, the camera bubble, and the full gesture set — with the model included for offline tracking.</p>
-          <a class="btn btn-bright btn-lg btn-block" href="https://github.com/abhinavtie2008/AirSign/releases/latest" target="_blank" rel="noreferrer">Download for Chrome <span class="arrow" aria-hidden="true">↓</span></a>
+          <a class="btn btn-bright btn-lg btn-block" href="https://github.com/abhinavtie2008/AirSign/releases/latest" target="_blank" rel="noreferrer">Download for Chrome and Edge <span class="arrow" aria-hidden="true">↓</span></a>
           <a class="btn btn-glass btn-block" href="https://github.com/abhinavtie2008/AirSign" target="_blank" rel="noreferrer" style="padding-top: 10px; padding-bottom: 10px;">View source on GitHub</a>
 
           <dl class="download-meta">
-            <div><dt>Version</dt><dd>2.3.1</dd></div>
+            <div><dt>Version</dt><dd>2.3.2</dd></div>
             <div><dt>Locale</dt><dd>Runs offline</dd></div>
             <div><dt>License</dt><dd>MIT</dd></div>
             <div><dt>Tracking</dt><dd>On-device</dd></div>
@@ -544,7 +544,7 @@
           </details>
           <details>
             <summary>Which browsers work?</summary>
-            <p>The extension targets Chrome 116+ (and Chromium browsers like Edge). The demo works in current Chrome, Edge, and Firefox where camera access and WebAssembly are available; desktop is strongly recommended because hand tracking needs a steady camera and a reasonably large screen.</p>
+            <p>The extension targets Chrome and Edge 116+. The demo works in current Chrome, Edge, and Firefox where camera access and WebAssembly are available; desktop is strongly recommended because hand tracking needs a steady camera and a reasonably large screen.</p>
           </details>
           <details>
             <summary>Why isn't my hand being detected?</summary>
@@ -552,15 +552,15 @@
           </details>
           <details>
             <summary>Does it work on every website?</summary>
-            <p>On ordinary http and https pages, yes. Chrome blocks extensions from injecting scripts into browser-internal pages such as <code>chrome://settings</code>, the Chrome Web Store, and some PDF viewers. AirSign also needs the page to use standard pointer events, which covers the vast majority of the web.</p>
+            <p>On ordinary http and https pages, yes. Browsers block extensions from injecting scripts into browser-internal pages such as <code>chrome://settings</code>, the Chrome Web Store, and some PDF viewers. AirSign also needs the page to use standard pointer events, which covers the vast majority of the web.</p>
           </details>
           <details>
             <summary>How do I stop the camera?</summary>
-            <p>Press Stop in the camera bubble or the side panel. The stream is released immediately and the Chrome camera indicator turns off. You can also revoke camera permission from the site or extension settings at any time.</p>
+            <p>Press Stop in the camera bubble or the side panel. The stream is released immediately and the camera indicator turns off. You can also revoke camera permission from the site or extension settings at any time.</p>
           </details>
           <details>
             <summary>What gets stored?</summary>
-            <p>The extension stores your tuning preferences and bubble position locally in Chrome. This demo stores the same preferences and its bubble position in <code>localStorage</code>. No hand landmarks, images, or browsing history are saved.</p>
+            <p>The extension stores your tuning preferences and bubble position locally in your browser. This demo stores the same preferences and its bubble position in <code>localStorage</code>. No hand landmarks, images, or browsing history are saved.</p>
           </details>
         </div>
       </div>
@@ -609,7 +609,7 @@
     </div>
     <div class="shell footer-bottom">
       <span>© 2026 AirSign · MIT licensed</span>
-      <span class="footer-built">Built with MediaPipe · Runs locally · Made for Chrome</span>
+      <span class="footer-built">Built with MediaPipe · Runs locally · Made for Chrome and Edge</span>
     </div>
   </footer>
 

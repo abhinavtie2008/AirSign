@@ -2,18 +2,18 @@
 
 [![Latest release](https://img.shields.io/github/v/release/abhinavtie2008/AirSign?label=release)](https://github.com/abhinavtie2008/AirSign/releases/latest)
 [![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://abhinavtie2008.github.io/AirSign/)
-[![Chrome 116+](https://img.shields.io/badge/Chrome-116%2B-4285F4?logo=googlechrome&logoColor=white)](#requirements)
+[![Chrome or Edge 116+](https://img.shields.io/badge/Chrome%20%7C%20Edge-116%2B-4285F4?logo=googlechrome&logoColor=white)](#requirements)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Touchless browsing for Chrome. Point, pinch, drag, and scroll with your hand.
+Touchless browsing for Chrome and Edge. Point, pinch, drag, and scroll with your hand.
 
-**[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.3.1](https://github.com/abhinavtie2008/AirSign/releases/latest)**
+**[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.3.2](https://github.com/abhinavtie2008/AirSign/releases/latest)**
 
 **Jump to:** [Install](#install) · [Gestures](#gestures) · [Camera bubble](#camera-bubble) · [Tuning](#tuning) · [Test page](#the-test-page) · [Privacy](#privacy) · [Troubleshooting](#troubleshooting) · [Development](#development)
 
 
 
-Touchless browsing for Chrome. AirSign turns hand movements into real webpage interactions using a webcam, while MediaPipe hand tracking runs locally inside Chrome — in the side panel, or in an extension offscreen document when you shrink AirSign to a camera bubble.
+Touchless browsing for Chrome and Edge. AirSign turns hand movements into real webpage interactions using a webcam, while MediaPipe hand tracking runs locally inside the browser — in the side panel, or in an extension offscreen document when you shrink AirSign to a camera bubble.
 
 **Point** to move the cursor, **pinch** to click, close a **fist** to drag, and raise **two fingers** to scroll. No mouse, no touch, no server.
 
@@ -25,14 +25,14 @@ This is an experimental hackathon project, not a sign-language translator. It un
 
 ## Requirements
 
-- Google Chrome 116 or newer (or another Chromium browser with side-panel support)
+- Google Chrome 116 or newer, or Microsoft Edge 116 or newer (or another Chromium browser with side-panel support)
 - A webcam
 - A desktop or laptop with a reasonably steady camera position
 
 ## Install
 
-1. Download `AirSign-v2.3.1.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
-2. Open `chrome://extensions`.
+1. Download `AirSign-v2.3.2.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
+2. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
 3. Turn on **Developer mode** (top-right).
 4. Click **Load unpacked** and select the folder that contains `manifest.json`.
 5. Pin AirSign to the toolbar (puzzle icon → pin).
@@ -40,7 +40,7 @@ This is an experimental hackathon project, not a sign-language translator. It un
 7. Click **Start AirSign** and allow camera access.
 8. To save screen space, click **Minimize to camera bubble**; the panel closes and a draggable camera bubble stays over the page. Use **Panel** in the bubble to bring the side panel back.
 
-On first use, Chrome may not show the camera prompt inside the side panel. AirSign detects that and opens a one-time setup tab. Allow access there; the tab closes and tracking starts in the panel. After that, Start AirSign works directly in the panel.
+On first use, your browser may not show the camera prompt inside the side panel. AirSign detects that and opens a one-time setup tab. Allow access there; the tab closes and tracking starts in the panel. After that, Start AirSign works directly in the panel.
 
 The test page is optional but recommended: click **Open test page** in the panel to practise every gesture without touching a real website.
 
@@ -65,7 +65,7 @@ The side panel is helpful while you set things up, but it takes up screen space 
 - Drag the bubble by its header to put it anywhere on the page; it stays inside the viewport and remembers its position for next time.
 - Gestures keep working while minimized. Point, pinch, fist and two-finger scroll behave exactly as they do with the panel open.
 - **Panel** reopens the side panel and resumes tracking there. **Stop** ends the session and removes the bubble and the page cursor.
-- Bubble mode needs a regular `http://` or `https://` page, because the bubble is injected as a content script. Navigating to another regular page keeps the session going; opening a protected Chrome page or closing the tab stops it.
+- Bubble mode needs a regular `http://` or `https://` page, because the bubble is injected as a content script. Navigating to another regular page keeps the session going; opening a protected browser page or closing the tab stops it.
 - Leaving the target tab pauses the camera and tracking until you come back. This is intentional: the camera does not run while you are looking at something else.
 
 ## The test page
@@ -126,7 +126,7 @@ The service worker configures the side panel and, in bubble mode, acts as a rout
 ### Project layout
 
 ```
-manifest.json          Chrome MV3 manifest
+manifest.json          Chromium MV3 manifest
 background.js          Side-panel setup, bubble routing, offscreen lifecycle
 sidepanel.html/.css/.js  Panel UI, camera, MediaPipe, target switching
 offscreen.html/.js     Hidden camera + MediaPipe tracker used in bubble mode
@@ -179,19 +179,19 @@ The UI is exercised end-to-end in headless Chrome with a fake camera and synthet
 ## Troubleshooting
 
 **The camera prompt never appears in the side panel**
-Use the setup tab AirSign opens, or allow the camera in `chrome://settings/content/camera`. If the permission page also fails, check that no other app is holding the camera exclusively.
+Use the setup tab AirSign opens, or allow the camera in your browser settings (`chrome://settings/content/camera`; Edge redirects the same address). If the permission page also fails, check that no other app is holding the camera exclusively.
 
-**"Chrome protects this page"**
-Normal Chrome pages (`chrome://…`), the Web Store, PDFs and other extensions cannot be scripted. Switch to a regular website or the built-in test page.
+**"Your browser protects this page"**
+Normal browser pages (`chrome://…`), the Web Store, PDFs and other extensions cannot be scripted. Switch to a regular website or the built-in test page.
 
 **The panel says the page is not connected / has an old bridge**
 Reload the page with Ctrl+R. After updating or reloading the extension, also reload any tab that was open before the update, because content scripts from the old version are gone.
 
 **No cursor on the page**
-Make sure tracking is running, the target tab is the one you are looking at, and your hand is visible in the preview. AirSign pauses when you switch to a protected Chrome page.
+Make sure tracking is running, the target tab is the one you are looking at, and your hand is visible in the preview. AirSign pauses when you switch to a protected browser page.
 
 **The camera bubble does not appear after minimizing**
-The bubble is a content script, so it only works on regular `http://` and `https://` pages. Chrome's protected pages, the Web Store, PDFs and `file://` pages cannot host it. If you installed or reloaded the extension while the tab was already open, reload the tab once.
+The bubble is a content script, so it only works on regular `http://` and `https://` pages. Your browser's protected pages, the Web Store, PDFs and `file://` pages cannot host it. If you installed or reloaded the extension while the tab was already open, reload the tab once.
 
 **The camera pauses when I switch tabs in bubble mode**
 This is intentional. AirSign pauses the camera and hand tracking while the target tab is hidden and resumes when you return. Click **Panel** if you would rather keep the side panel open across tabs.
@@ -212,7 +212,7 @@ Run **Calibrate pinch** and hold a clearly open hand at step 1, then a firm pinc
 Keep **Click assist** on and watch the outline before pinching: only the outlined element will be clicked. If two controls are very close, slow down for a moment; the preview deliberately sticks to its current target until a neighbour is clearly closer. Turning assist off requires an exact hit.
 
 **The model fails to load**
-Reinstall the extension from its folder and reload it in `chrome://extensions`. The `vendor/` directory must contain `hand_landmarker.task`, `vision_bundle.mjs`, and the files under `vendor/wasm/`.
+Reinstall the extension from its folder and reload it in your extensions page (`chrome://extensions` or `edge://extensions`). The `vendor/` directory must contain `hand_landmarker.task`, `vision_bundle.mjs`, and the files under `vendor/wasm/`.
 
 **Some websites ignore air clicks**
 AirSign dispatches synthetic (untrusted) DOM events, because a web page cannot move the real OS mouse. Most buttons, links, toggles and JS-driven drags work, but native HTML5 drag-and-drop, some canvas apps, cross-origin iframes and security-sensitive controls may ignore them. Keyboard focus is moved to the clicked element so keyboard flows can still work.

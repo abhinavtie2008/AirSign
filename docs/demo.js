@@ -1,6 +1,6 @@
 import { createGestureEngine, HAND_CONNECTIONS, POSE_LABELS, REACH_PRESETS } from './lib/gestures.js';
 
-const VERSION = '2.3.1';
+const VERSION = '2.3.2';
 const SETTINGS_KEY = 'airsign.demo.settings.v1';
 const BUBBLE_KEY = 'airsign.demo.bubble.v1';
 
@@ -145,7 +145,7 @@ class DemoSetupError extends Error {}
 function describeCameraError(error) {
   const name = error && error.name;
   if (name === 'NotAllowedError' || name === 'SecurityError') {
-    return 'Camera permission was blocked. Allow camera access from the icon in Chrome’s address bar, then try again.';
+    return 'Camera permission was blocked. Allow camera access from the icon in your browser’s address bar, then try again.';
   }
   if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
     return 'No camera was found. Connect a webcam and try again.';

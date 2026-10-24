@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '2.3.1';
+  const VERSION = '2.3.2';
   const DETECT_INTERVAL_MS = 1000 / 30;
   const PREVIEW_INTERVAL_MS = 120;
   const PREVIEW_WIDTH = 320;
@@ -168,7 +168,7 @@
 
   async function openCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('This Chrome context has no camera API.');
+      throw new Error('This browser context has no camera API.');
     }
     try {
       stream = await navigator.mediaDevices.getUserMedia({

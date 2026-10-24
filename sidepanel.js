@@ -174,7 +174,7 @@ function prettyUrl(url) {
   if (isSandboxUrl(url)) return 'AirSign test page';
   try {
     const parsed = new URL(url);
-    if (parsed.protocol === 'chrome:') return parsed.pathname === '/extensions' ? 'chrome://extensions' : 'Chrome page';
+    if (parsed.protocol === 'chrome:') return parsed.pathname === '/extensions' ? 'chrome://extensions' : 'Browser page';
     if (parsed.protocol === 'chrome-extension:') return 'Extension page';
     if (parsed.protocol === 'file:') return 'Local file';
     if (parsed.protocol === 'chrome-search:' || parsed.protocol === 'edge:') return 'Browser page';
@@ -652,7 +652,7 @@ function sendStop(tab) {
 
 async function activateTarget(tab, { announce = true, throwOnError = false } = {}) {
   if (!isEligible(tab)) {
-    const error = new AirSignError('Chrome protects this page. Switch to a regular http:// or https:// website.', [
+    const error = new AirSignError('Your browser protects this page. Switch to a regular http:// or https:// website.', [
       { label: 'Open test page', onClick: openSandbox }
     ]);
     if (throwOnError) throw error;
@@ -731,12 +731,12 @@ async function cameraPermissionState() {
 
 async function openCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    throw new AirSignError('This Chrome context has no camera API. Update Chrome and reload the extension.');
+    throw new AirSignError('This browser context has no camera API. Update your browser and reload the extension.');
   }
 
   const permission = await cameraPermissionState();
   if (permission === 'denied') {
-    const error = new AirSignError('Camera access is blocked for AirSign. Allow the camera in Chrome settings, then try again.', [
+    const error = new AirSignError('Camera access is blocked for AirSign. Allow the camera in your browser settings, then try again.', [
       { label: 'Camera settings', onClick: () => chrome.tabs.create({ url: 'chrome://settings/content/camera' }) },
       { label: 'Retry', onClick: () => start() }
     ]);
@@ -751,7 +751,7 @@ async function openCamera() {
     });
   } catch (error) {
     if (error && error.name === 'NotAllowedError') {
-      const permissionError = new AirSignError('Chrome did not grant camera access from the side panel.');
+      const permissionError = new AirSignError('Your browser did not grant camera access from the side panel.');
       permissionError.code = 'CAMERA_PROMPT';
       throw permissionError;
     }
@@ -1090,7 +1090,7 @@ async function handleStartError(error) {
 
   if (error && error.code === 'CAMERA_PROMPT') {
     setStatusDot('starting');
-    setMessage('Chrome did not show the camera prompt here. Allow access once in the setup tab; after that, tracking will start directly in the panel.', 'warn');
+    setMessage('Your browser did not show the camera prompt here. Allow access once in the setup tab; after that, tracking will start directly in the panel.', 'warn');
     await openPermissionTab();
     return;
   }
@@ -1411,7 +1411,7 @@ chrome.tabs.onActivated.addListener(async ({ tabId, windowId }) => {
 
   if (!isEligible(tab)) {
     if (!suspended) {
-      await suspendTracking('AirSign is paused on Chrome pages and settings. Switch back to a normal webpage.');
+      await suspendTracking('AirSign is paused on browser pages and settings. Switch back to a normal webpage.');
     }
     return;
   }
@@ -1565,6 +1565,6 @@ window.addEventListener('pagehide', () => {
     setMessage('Camera restored from the bubble. Starting tracking in the panel…', 'success');
     start();
   } else if (takeover && takeover.activeElsewhere) {
-    setMessage('AirSign is running in a camera bubble in another Chrome window.', '');
+    setMessage('AirSign is running in a camera bubble in another browser window.', '');
   }
 })();
