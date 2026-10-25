@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — AirSign</title>
+  <meta name="description" content="How AirSign handles camera frames, hand landmarks, tab information, and settings. Everything is processed locally on your device.">
+  <meta name="theme-color" content="#05070c">
+  <link rel="icon" href="./icon128.png" type="image/png">
+  <style>
+    :root {
+      --bg: #05070c;
+      --surface: rgba(255, 255, 255, 0.035);
+      --line: rgba(255, 255, 255, 0.085);
+      --text: #eef2ff;
+      --muted: #99a3bd;
+      --dim: #69728d;
+      --accent: #22d3ee;
+      --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(900px 520px at 82% -8%, rgba(34, 211, 238, 0.09), transparent 62%),
+        radial-gradient(760px 520px at 0% 16%, rgba(124, 92, 255, 0.07), transparent 64%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+    .site-header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(5, 7, 12, 0.72);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); }
+    .brand img { border-radius: 8px; display: block; }
+    .brand span { font-weight: 650; letter-spacing: 0.01em; }
+    .brand:hover { text-decoration: none; }
+    .header-link { color: var(--muted); font-size: 14px; }
+    .header-link:hover { color: var(--text); text-decoration: none; }
+    main { max-width: 760px; margin: 0 auto; padding: 64px 24px 88px; }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin: 0 0 12px;
+    }
+    h1 { font-size: clamp(34px, 5vw, 48px); line-height: 1.08; letter-spacing: -0.025em; margin: 0 0 14px; }
+    .lede { color: var(--muted); font-size: 18px; margin: 0 0 10px; max-width: 62ch; }
+    .effective { color: var(--dim); font-size: 14px; margin: 0 0 40px; }
+    .callout {
+      border: 1px solid rgba(34, 211, 238, 0.28);
+      background: rgba(34, 211, 238, 0.075);
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin: 0 0 40px;
+      color: var(--text);
+    }
+    .callout strong { color: var(--accent); }
+    h2 {
+      font-size: 21px;
+      letter-spacing: -0.01em;
+      margin: 40px 0 12px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+    }
+    p { margin: 0 0 14px; }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 0 0 8px; }
+    code {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.9em;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1px 6px;
+    }
+    footer { border-top: 1px solid var(--line); }
+    .footer-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      justify-content: space-between;
+      color: var(--dim);
+      font-size: 13px;
+    }
+    .footer-inner nav { display: flex; gap: 18px; }
+    .footer-inner a { color: var(--muted); }
+    @media (max-width: 520px) {
+      main { padding-top: 44px; }
+      .header-inner { padding: 12px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="./">
+        <img src="./icon128.png" alt="" width="28" height="28">
+        <span>AirSign</span>
+      </a>
+      <a class="header-link" href="./">Back to AirSign</a>
+    </div>
+  </header>
+
+  <main>
+    <p class="eyebrow">Privacy</p>
+    <h1>Privacy Policy</h1>
+    <p class="lede">AirSign turns webcam hand gestures into cursor movement, clicks, drags, and scrolling. Everything is processed on your device.</p>
+    <p class="effective">Effective date: October 25, 2026</p>
+
+    <div class="callout">
+      <strong>The short version:</strong> AirSign does not collect or transmit your camera feed, hand landmarks, or browsing history. Tuning settings stay in your browser, and there is no account, no analytics, and no server.
+    </div>
+
+    <h2>Camera</h2>
+    <p>AirSign uses your webcam only after you click <strong>Start AirSign</strong> and grant camera permission. Video frames are processed in memory by a hand-tracking model that is bundled with the extension.</p>
+    <p>Frames are not recorded, saved to disk, transmitted, or shared. AirSign does not access your microphone. The camera stays active only while tracking is running; pressing <strong>Stop</strong> or ending the session releases it immediately. You can revoke camera permission at any time in your browser's site settings.</p>
+
+    <h2>Hand landmarks and gesture data</h2>
+    <p>The tracking model produces 21 hand landmarks per frame. Landmarks are used locally to determine the cursor position and the current gesture.</p>
+    <p>Frames sent to the page AirSign controls contain only gesture labels and normalized cursor coordinates — never image data. Nothing is stored after the session ends.</p>
+
+    <h2>Tabs and page information</h2>
+    <p>While AirSign is running, it reads the active tab's URL and title to show which page it controls and to decide whether that page can be controlled. This information is used locally and is not stored or transmitted.</p>
+    <p>AirSign cannot run on browser-internal pages such as <code>edge://settings</code>, the add-ons store, other extensions' pages, or local <code>file://</code> pages.</p>
+
+    <h2>Settings</h2>
+    <p>Tuning preferences, pinch calibration thresholds, and the camera bubble position are stored locally in your browser using the extension storage API. They stay on your device, are not synced, and are removed when you uninstall the extension.</p>
+
+    <h2>Network activity</h2>
+    <p>AirSign makes no network requests for hand tracking. The MediaPipe model, WebAssembly runtime, and all code are packaged with the extension. There are no analytics, advertising, tracking pixels, or remote scripts.</p>
+    <p>This privacy page is hosted on GitHub Pages. GitHub may process standard web server logs for visits to this page under its own privacy policy; that logging is unrelated to the extension.</p>
+
+    <h2>Data sharing and sale</h2>
+    <p>AirSign does not collect, sell, rent, or share personal information with third parties. It does not use data for advertising, creditworthiness, lending, or any purpose unrelated to local gesture control.</p>
+
+    <h2>Children</h2>
+    <p>AirSign is not directed at children under 13 and does not knowingly collect information from them.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes, the updated version will be published at this URL with a new effective date.</p>
+
+    <h2>Contact</h2>
+    <p>AirSign is an open-source project maintained by Abhinav Sharma. For privacy questions, open an issue at <a href="https://github.com/abhinavtie2008/AirSign/issues" target="_blank" rel="noreferrer">github.com/abhinavtie2008/AirSign/issues</a>.</p>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>© 2026 AirSign · MIT licensed</span>
+      <nav aria-label="Footer">
+        <a href="./">Home</a>
+        <a href="https://github.com/abhinavtie2008/AirSign" target="_blank" rel="noreferrer">Source</a>
+        <a href="https://github.com/abhinavtie2008/AirSign/issues" target="_blank" rel="noreferrer">Contact</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
