@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '2.4.0';
+  const VERSION = '2.5.0';
   if (window.__airsignBubbleVersion) {
     if (window.__airsignBubbleVersion !== VERSION) {
       console.warn(`AirSign: camera bubble ${window.__airsignBubbleVersion} is stale; reload this page.`);
@@ -309,7 +309,7 @@
       setStatus(message || 'The camera could not start.', 'error');
     } else if (state === 'paused') {
       setLive(false, true);
-      setStatus('Paused while this tab is hidden.');
+      setStatus(message || 'Paused while this tab is hidden.');
     } else if (state === 'live') {
       setLive(true);
       if (gotPreview) setStatus('');

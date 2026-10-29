@@ -3,7 +3,7 @@
   "short_name": "AirSign",
   "homepage_url": "https://abhinavtie2008.github.io/AirSign/",
   "name": "AirSign — Touchless Browsing",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Control webpages with hand gestures from your webcam. Hand tracking runs locally in the side panel or a draggable camera bubble.",
   "minimum_chrome_version": "116",
   "permissions": [
