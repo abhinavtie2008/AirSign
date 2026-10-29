@@ -1,6 +1,6 @@
 {
   "name": "airsign-extension",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "private": true,
   "description": "Gesture-controlled browsing in Chrome and Edge, running MediaPipe hand tracking locally in the side panel or a camera bubble.",
   "license": "MIT",

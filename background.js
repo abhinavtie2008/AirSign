@@ -1,12 +1,14 @@
 'use strict';
 
-const VERSION = '2.4.0';
+const VERSION = '2.5.0';
 const BUBBLE_KEY = 'airsignBubbleState';
 const RESTORE_KEY = 'airsignRestorePending';
+const PAUSED_KEY = 'airsignPausedSites';
 const OFFSCREEN_URL = 'offscreen.html';
 const SANDBOX_PATH = 'sandbox.html';
 
 let cachedBubble;
+let pausedSites = new Set();
 
 function configureSidePanel() {
   chrome.sidePanel
@@ -44,6 +46,68 @@ function isWebUrl(url) {
 function isSandboxUrl(url) {
   return typeof url === 'string' && url.startsWith(chrome.runtime.getURL(SANDBOX_PATH));
 }
+
+function siteOrigin(url) {
+  if (!isWebUrl(url)) return null;
+  try {
+    return new URL(url).origin;
+  } catch (_) {
+    return null;
+  }
+}
+
+function siteHost(url) {
+  const origin = siteOrigin(url);
+  if (!origin) return 'this site';
+  try {
+    return new URL(origin).host.replace(/^www\./, '');
+  } catch (_) {
+    return origin;
+  }
+}
+
+function isPausedUrl(url) {
+  const origin = siteOrigin(url);
+  return Boolean(origin && pausedSites.has(origin));
+}
+
+async function loadPausedSites() {
+  try {
+    const stored = await chrome.storage.local.get(PAUSED_KEY);
+    const list = stored && stored[PAUSED_KEY];
+    pausedSites = new Set(Array.isArray(list) ? list.filter((value) => typeof value === 'string' && value) : []);
+  } catch (_) {
+    pausedSites = new Set();
+  }
+}
+
+function pausedStatusMessage(url) {
+  return `Paused on ${siteHost(url)}. Open the panel to resume.`;
+}
+
+async function syncBubblePause() {
+  const state = await getBubble();
+  if (!state || state.kind !== 'web') return;
+  const paused = isPausedUrl(state.url);
+  if (paused === Boolean(state.paused)) return;
+  state.paused = paused;
+  await setBubble(state);
+  if (paused) {
+    await sendToPage(state, { type: 'AIRSIGN_BUBBLE_STATUS', state: 'paused', message: pausedStatusMessage(state.url) });
+  } else {
+    await sendToPage(state, { type: 'AIRSIGN_BUBBLE_SHOW' });
+    await sendToPage(state, { type: 'AIRSIGN_BUBBLE_STATUS', state: 'live' });
+  }
+}
+
+loadPausedSites();
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local' || !changes[PAUSED_KEY]) return;
+  const list = changes[PAUSED_KEY].newValue;
+  pausedSites = new Set(Array.isArray(list) ? list.filter((value) => typeof value === 'string' && value) : []);
+  syncBubblePause();
+});
 
 async function getBubble() {
   if (cachedBubble !== undefined) return cachedBubble;
@@ -165,7 +229,7 @@ async function showBubble(state) {
 
 async function forwardFrame(payload) {
   const state = await getBubble();
-  if (!state) return;
+  if (!state || state.paused) return;
   sendToPage(state, { type: 'AIRSIGN_FRAME', payload });
 }
 
@@ -182,7 +246,7 @@ async function forwardPreview(message) {
 
 async function forwardStatus(message) {
   const state = await getBubble();
-  if (!state) return;
+  if (!state || (state.paused && message.state !== 'error')) return;
   sendToPage(state, {
     type: 'AIRSIGN_BUBBLE_STATUS',
     state: message.state,
@@ -207,6 +271,7 @@ async function enterBubble(message) {
     url: tab.url,
     title: tab.title || '',
     settings: message.settings || {},
+    paused: !sandbox && isPausedUrl(tab.url),
     startedAt: Date.now()
   };
   await setBubble(state);
@@ -215,6 +280,9 @@ async function enterBubble(message) {
   try {
     await startOffscreen(message.settings || {});
     await showBubble(state);
+    if (state.paused) {
+      await sendToPage(state, { type: 'AIRSIGN_BUBBLE_STATUS', state: 'paused', message: pausedStatusMessage(state.url) });
+    }
   } catch (error) {
     await stopOffscreen();
     await setBubble(null);
@@ -390,6 +458,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   const state = await getBubble();
   if (!state || state.tabId !== tabId) return;
 
+  if (changeInfo.url && !changeInfo.status) {
+    state.url = changeInfo.url;
+    await setBubble(state);
+    await syncBubblePause();
+    return;
+  }
+
   if (changeInfo.status === 'complete') {
     const url = tab.url || state.url;
     if (state.kind === 'sandbox' ? !isSandboxUrl(url) : !isWebUrl(url)) {
@@ -398,7 +473,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     }
     state.url = url;
     state.title = tab.title || state.title;
+    state.paused = state.kind === 'web' && isPausedUrl(url);
     await setBubble(state);
-    sendToPage(state, { type: 'AIRSIGN_BUBBLE_SHOW' });
+    await sendToPage(state, { type: 'AIRSIGN_BUBBLE_SHOW' });
+    await sendToPage(state, state.paused
+      ? { type: 'AIRSIGN_BUBBLE_STATUS', state: 'paused', message: pausedStatusMessage(url) }
+      : { type: 'AIRSIGN_BUBBLE_STATUS', state: 'live' });
   }
 });

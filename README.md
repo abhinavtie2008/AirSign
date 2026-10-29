@@ -8,9 +8,9 @@
 
 Touchless browsing for Chrome and Edge. Point, pinch, drag, and scroll with your hand.
 
-**[Add to Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe)** · **[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.4.0](https://github.com/abhinavtie2008/AirSign/releases/latest)**
+**[Add to Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe)** · **[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.5.0](https://github.com/abhinavtie2008/AirSign/releases/latest)**
 
-**Jump to:** [Install](#install) · [Gestures](#gestures) · [Camera bubble](#camera-bubble) · [Tuning](#tuning) · [Test page](#the-test-page) · [Privacy](#privacy) · [Troubleshooting](#troubleshooting) · [Development](#development)
+**Jump to:** [Install](#install) · [Gestures](#gestures) · [Camera bubble](#camera-bubble) · [Per-site pause](#per-site-pause) · [Tuning](#tuning) · [Test page](#the-test-page) · [Privacy](#privacy) · [Troubleshooting](#troubleshooting) · [Development](#development)
 
 
 
@@ -21,6 +21,8 @@ Touchless browsing for Chrome and Edge. AirSign turns hand movements into real w
 Try it in the browser before installing: **https://abhinavtie2008.github.io/AirSign/** runs the same gesture engine, page bridge and local model as the extension, right in the tab. The showcase source lives in [`docs/`](docs/).
 
 Pinch detection can be fitted to your own hand with a two-step calibration, so a relaxed hand clicks reliably across different cameras, lighting and seating distances. Click assist previews the button or link under your fingertip and keeps the click there, so small aiming errors do not land on the wrong control.
+
+Pages that fight a cursor — text editors, maps, canvas apps — can be paused one site at a time without ending the session.
 
 This is an experimental hackathon project, not a sign-language translator. It understands four deliberate hand shapes and nothing else.
 
@@ -38,7 +40,7 @@ AirSign is published as [AirSign — Touchless Browsing](https://microsoftedge.m
 
 ### Unpacked (Chrome, or Edge without the store)
 
-1. Download `AirSign-v2.4.0.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
+1. Download `AirSign-v2.5.0.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
 2. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
 3. Turn on **Developer mode** (top-right).
 4. Click **Load unpacked** and select the folder that contains `manifest.json`.
@@ -75,6 +77,16 @@ The side panel is helpful while you set things up, but it takes up screen space 
 - **Panel** reopens the side panel and resumes tracking there. **Stop** ends the session and removes the bubble and the page cursor.
 - Bubble mode needs a regular `http://` or `https://` page, because the bubble is injected as a content script. Navigating to another regular page keeps the session going; opening a protected browser page or closing the tab stops it.
 - Leaving the target tab pauses the camera and tracking until you come back. This is intentional: the camera does not run while you are looking at something else.
+- Navigating the controlled tab onto a paused site keeps the bubble visible with a **Paused** status. Open **Panel** there to resume.
+
+## Per-site pause
+
+Some pages are easier with a mouse and keyboard: in a text editor your finger moves the caret and selects text, maps pan while you aim, and video players pop their controls on hover. The target card in the side panel has **Pause on <site>** for exactly those pages:
+
+- AirSign stops showing the cursor and stops sending gestures on that exact site, for example `https://docs.google.com`. Subdomains are separate, so pausing `docs.google.com` does not pause `google.com`.
+- Tracking keeps running, so switching to another tab resumes control immediately. Switching back leaves gestures off until you choose **Resume on this site**.
+- The pause survives restarts and is stored locally in your browser profile, never synced. It also applies in the camera bubble.
+- **Stop** still ends the whole session and turns the camera off; pause only affects the site you chose.
 
 ## The test page
 

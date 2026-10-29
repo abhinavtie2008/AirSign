@@ -208,6 +208,17 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .bridge-state.ok { color: var(--green); }
 .bridge-state.warn { color: var(--amber); }
 .bridge-state.error { color: var(--red); }
+.target-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+.site-btn {
+  max-width: 100%; padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--border); background: rgba(124, 92, 255, .08);
+  color: #c7d2fe; font-size: 10px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.site-btn:hover { border-color: rgba(34, 211, 238, .45); color: #e0f2fe; }
+.site-btn[data-paused="true"] {
+  border-color: rgba(251, 191, 36, .4); background: rgba(251, 191, 36, .08); color: #fde68a;
+}
 
 /* ---------- Message ---------- */
 .message {

@@ -11,6 +11,7 @@ import {
 
 const VERSION = GESTURE_VERSION;
 const SETTINGS_KEY = 'airsignSettings';
+const PAUSED_KEY = 'airsignPausedSites';
 const DETECT_INTERVAL_MS = 1000 / 30;
 const CALIBRATION_CAPTURE_MS = 1400;
 const CALIBRATION_PINCH_WAIT_MS = 6000;
@@ -56,6 +57,7 @@ const fpsLabel = $('fpsLabel');
 const targetTitle = $('targetTitle');
 const targetUrl = $('targetUrl');
 const bridgeState = $('bridgeState');
+const sitePauseBtn = $('sitePauseBtn');
 const messageEl = $('message');
 const sandboxBtn = $('sandboxBtn');
 const tuning = $('tuning');
@@ -92,6 +94,8 @@ let running = false;
 let starting = false;
 let waitingForPermission = false;
 let suspended = false;
+let sitePaused = false;
+let pausedSites = new Set();
 let bubbleActive = false;
 let permissionTabId = null;
 let stream = null;
@@ -172,6 +176,68 @@ function isSandboxUrl(url) {
 
 function isEligible(tab) {
   return Boolean(tab && Number.isInteger(tab.id) && (isWebUrl(tab.url) || isSandboxUrl(tab.url)));
+}
+
+function siteOrigin(tab) {
+  if (!tab || !isWebUrl(tab.url)) return null;
+  try {
+    return new URL(tab.url).origin;
+  } catch (_) {
+    return null;
+  }
+}
+
+function siteHost(tab) {
+  const origin = siteOrigin(tab);
+  if (!origin) return '';
+  try {
+    return new URL(origin).host.replace(/^www\./, '');
+  } catch (_) {
+    return origin;
+  }
+}
+
+function isPausedSite(tab) {
+  const origin = siteOrigin(tab);
+  return Boolean(origin && pausedSites.has(origin));
+}
+
+async function loadPausedSites() {
+  try {
+    const stored = await chrome.storage.local.get(PAUSED_KEY);
+    const list = stored && stored[PAUSED_KEY];
+    pausedSites = new Set(Array.isArray(list) ? list.filter((value) => typeof value === 'string' && value) : []);
+  } catch (_) {
+    pausedSites = new Set();
+  }
+}
+
+async function savePausedSites() {
+  try {
+    await chrome.storage.local.set({ [PAUSED_KEY]: [...pausedSites] });
+  } catch (error) {
+    console.warn('AirSign could not save paused sites:', error);
+  }
+}
+
+async function toggleSitePause() {
+  const tab = running ? target : previewTab;
+  const origin = siteOrigin(tab);
+  if (!origin) return;
+  const nowPaused = !pausedSites.has(origin);
+  if (nowPaused) pausedSites.add(origin);
+  else pausedSites.delete(origin);
+  await savePausedSites();
+
+  if (running && target && siteOrigin(target) === origin) {
+    if (nowPaused) {
+      await suspendTracking(`AirSign is paused on ${siteHost(target)}. Choose Resume on this site to take control back.`, { site: true });
+    } else {
+      await resumeTracking(target);
+    }
+  } else {
+    renderTarget();
+  }
 }
 
 function prettyUrl(url) {
@@ -282,7 +348,7 @@ function updateControls() {
 
 function renderTarget() {
   const tab = running ? target : previewTab || target;
-  const key = tab ? `${tab.id}|${tab.title}|${tab.url}|${suspended}|${running}|${target?.bridgeReady}` : 'none';
+  const key = tab ? `${tab.id}|${tab.title}|${tab.url}|${suspended}|${sitePaused}|${running}|${target?.bridgeReady}` : 'none';
   if (key !== lastRenderedTargetKey) {
     lastRenderedTargetKey = key;
     if (tab) {
@@ -300,6 +366,8 @@ function renderTarget() {
 
   if (!tab) {
     setBridge('', '—');
+  } else if (sitePaused) {
+    setBridge('warn', 'Site paused');
   } else if (suspended) {
     setBridge('warn', 'Paused');
   } else if (bubbleActive) {
@@ -313,6 +381,22 @@ function renderTarget() {
   } else {
     setBridge('warn', 'Protected');
   }
+
+  renderSitePause();
+}
+
+function renderSitePause() {
+  const tab = running ? target : previewTab || target;
+  const origin = siteOrigin(tab);
+  sitePauseBtn.hidden = !origin;
+  if (!origin) return;
+  const paused = pausedSites.has(origin);
+  const host = siteHost(tab);
+  sitePauseBtn.textContent = paused ? `Resume on ${host}` : `Pause on ${host}`;
+  sitePauseBtn.dataset.paused = String(paused);
+  sitePauseBtn.title = paused
+    ? `Gestures stay off on ${origin} until you resume.`
+    : `Turn gestures off while you are on ${origin}.`;
 }
 
 function applySettingsUI() {
@@ -680,11 +764,20 @@ async function activateTarget(tab, { announce = true, throwOnError = false } = {
     kind: isSandboxUrl(tab.url) ? 'sandbox' : 'web',
     bridgeReady: false
   };
-  suspended = false;
+  sitePaused = isPausedSite(target);
+  suspended = sitePaused;
   previewTab = tab;
   lastRenderedTargetKey = '';
-  setBridge('warn', 'Connecting');
+  setBridge('warn', sitePaused ? 'Site paused' : 'Connecting');
   renderTarget();
+
+  if (sitePaused) {
+    if (running) {
+      setTracking('Paused on this site');
+      setMessage(`AirSign is paused on ${siteHost(target)}. Choose Resume on this site to take control back.`, 'warn');
+    }
+    return true;
+  }
 
   try {
     await ensureBridge(target, token);
@@ -703,17 +796,19 @@ async function activateTarget(tab, { announce = true, throwOnError = false } = {
   }
 }
 
-async function suspendTracking(reason) {
+async function suspendTracking(reason, { site = false } = {}) {
   if (!running) return;
   suspended = true;
+  sitePaused = site;
   sendStop(target);
   renderTarget();
-  setTracking('Paused');
+  setTracking(site ? 'Paused on this site' : 'Paused');
   setMessage(reason || 'AirSign is paused while this page is open. Switch back to a regular webpage.', 'warn');
 }
 
 async function resumeTracking(tab) {
   suspended = false;
+  sitePaused = false;
   renderTarget();
   try {
     await ensureBridge(target, targetToken);
@@ -965,7 +1060,7 @@ function applyFrameToUI(frame) {
   }
   setHandState(true);
   setGestureChip(frame.pose);
-  if (running && !calibration) setTracking(STATUS_LABELS[frame.pose] || POSE_LABELS[frame.pose] || 'Tracking');
+  if (running && !suspended && !calibration) setTracking(STATUS_LABELS[frame.pose] || POSE_LABELS[frame.pose] || 'Tracking');
 }
 
 function startLoop() {
@@ -1164,11 +1259,14 @@ async function start() {
     setBadge(true);
     updateControls();
     setStatusDot('on');
-    setTracking('Looking for a hand');
+    setTracking(sitePaused ? 'Paused on this site' : 'Looking for a hand');
     setGestureChip('none');
     setHandState(false);
     const startActions = settings.calibration ? [] : [{ label: 'Calibrate pinch', onClick: beginCalibration }];
     setMessage(`Tracking locally. Switch to “${target.title}” and point your index finger to move the cursor.`, 'success', startActions);
+    if (sitePaused) {
+      setMessage(`AirSign is paused on ${siteHost(target)}. Choose Resume on this site when you want gestures there.`, 'warn');
+    }
     renderTarget();
     startLoop();
 
@@ -1204,6 +1302,7 @@ function stop({ unload = false } = {}) {
     target.bridgeReady = false;
   }
   suspended = false;
+  sitePaused = false;
   cleanupTrackingUI();
   setBadge(false);
   updateControls();
@@ -1227,6 +1326,7 @@ function resetAfterBubble(message) {
   waitingForPermission = false;
   calibrationPending = false;
   suspended = false;
+  sitePaused = false;
   cleanupTrackingUI();
   setBadge(false);
   updateControls();
@@ -1241,7 +1341,15 @@ async function minimizeToBubble() {
     setMessage('Finish or cancel pinch calibration before minimizing to the bubble.', 'warn');
     return;
   }
-  if (!target || suspended) {
+  if (!target) {
+    setMessage('Open a regular webpage before minimizing to the camera bubble.', 'warn');
+    return;
+  }
+  if (sitePaused) {
+    setMessage(`AirSign is paused on ${siteHost(target)}. Resume on this site before minimizing to the camera bubble.`, 'warn');
+    return;
+  }
+  if (suspended) {
     setMessage('Open a regular webpage before minimizing to the camera bubble.', 'warn');
     return;
   }
@@ -1375,6 +1483,8 @@ bubbleBtn.addEventListener('click', minimizeToBubble);
 
 sandboxBtn.addEventListener('click', openSandbox);
 
+sitePauseBtn.addEventListener('click', toggleSitePause);
+
 for (const button of reachButtons) {
   button.addEventListener('click', () => changeSettings({ reach: button.dataset.reach }));
 }
@@ -1436,6 +1546,12 @@ chrome.tabs.onActivated.addListener(async ({ tabId, windowId }) => {
   }
 
   if (target && tab.id === target.tabId) {
+    if (isPausedSite(tab)) {
+      if (!sitePaused) {
+        await suspendTracking(`AirSign is paused on ${siteHost(tab)}. Choose Resume on this site to take control back.`, { site: true });
+      }
+      return;
+    }
     if (suspended) await resumeTracking(tab);
     return;
   }
@@ -1454,11 +1570,35 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
   if (!target || tabId !== target.tabId) return;
 
+  if (changeInfo.url && !changeInfo.status) {
+    target.url = changeInfo.url;
+    target.title = tab.title || target.title;
+    lastRenderedTargetKey = '';
+    if (isPausedSite(target) !== sitePaused) {
+      if (!sitePaused) {
+        await suspendTracking(`AirSign is paused on ${siteHost(target)}. Choose Resume on this site to take control back.`, { site: true });
+      } else {
+        await resumeTracking(target);
+      }
+    } else {
+      renderTarget();
+    }
+    return;
+  }
+
   if (changeInfo.status === 'loading') {
     target.bridgeReady = false;
     target.url = tab.url || target.url;
     target.title = tab.title || target.title;
     lastRenderedTargetKey = '';
+    if (isPausedSite(target)) {
+      if (!sitePaused) {
+        await suspendTracking(`AirSign is paused on ${siteHost(target)}. Choose Resume on this site to take control back.`, { site: true });
+      } else {
+        renderTarget();
+      }
+      return;
+    }
     if (!suspended) setBridge('warn', 'Loading');
     renderTarget();
     return;
@@ -1468,6 +1608,18 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     target.url = tab.url || target.url;
     target.title = tab.title || target.title;
     lastRenderedTargetKey = '';
+    if (isPausedSite(target)) {
+      if (!sitePaused) {
+        await suspendTracking(`AirSign is paused on ${siteHost(target)}. Choose Resume on this site to take control back.`, { site: true });
+      } else {
+        renderTarget();
+      }
+      return;
+    }
+    if (sitePaused) {
+      await resumeTracking(target);
+      return;
+    }
     if (!suspended) {
       try {
         await ensureBridge(target, targetToken);
@@ -1565,6 +1717,7 @@ window.addEventListener('pagehide', () => {
 
 (async function init() {
   await loadSettings();
+  await loadPausedSites();
   const active = await getActiveTab();
   currentWindowId = active && Number.isInteger(active.windowId) ? active.windowId : null;
   await updatePreview();
