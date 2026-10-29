@@ -3,11 +3,12 @@
 [![Latest release](https://img.shields.io/github/v/release/abhinavtie2008/AirSign?label=release)](https://github.com/abhinavtie2008/AirSign/releases/latest)
 [![Live demo](https://img.shields.io/badge/demo-live-brightgreen)](https://abhinavtie2008.github.io/AirSign/)
 [![Chrome or Edge 116+](https://img.shields.io/badge/Chrome%20%7C%20Edge-116%2B-4285F4?logo=googlechrome&logoColor=white)](#requirements)
+[![Microsoft Edge Add-ons](https://img.shields.io/badge/Edge%20Add--ons-AirSign-0078D7?logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe)
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Touchless browsing for Chrome and Edge. Point, pinch, drag, and scroll with your hand.
 
-**[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.3.2](https://github.com/abhinavtie2008/AirSign/releases/latest)**
+**[Add to Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe)** · **[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.3.2](https://github.com/abhinavtie2008/AirSign/releases/latest)**
 
 **Jump to:** [Install](#install) · [Gestures](#gestures) · [Camera bubble](#camera-bubble) · [Tuning](#tuning) · [Test page](#the-test-page) · [Privacy](#privacy) · [Troubleshooting](#troubleshooting) · [Development](#development)
 
@@ -30,6 +31,12 @@ This is an experimental hackathon project, not a sign-language translator. It un
 - A desktop or laptop with a reasonably steady camera position
 
 ## Install
+
+### From the Edge Add-ons store
+
+AirSign is published as [AirSign — Touchless Browsing](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe) on Microsoft Edge Add-ons. Click **Get**, confirm, then pin AirSign to the toolbar — store builds update on their own. Requires Edge 116 or newer on desktop.
+
+### Unpacked (Chrome, or Edge without the store)
 
 1. Download `AirSign-v2.3.2.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
 2. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
