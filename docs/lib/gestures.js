@@ -12,6 +12,7 @@ export const DWELL_MIN_MS = 400;
 export const DWELL_MAX_MS = 1500;
 
 export function normalizeDwellMs(value) {
+  if (value === null || value === undefined || value === '') return DWELL_DEFAULT_MS;
   const ms = Number(value);
   if (!Number.isFinite(ms)) return DWELL_DEFAULT_MS;
   return Math.round(Math.min(DWELL_MAX_MS, Math.max(DWELL_MIN_MS, ms)));

@@ -552,11 +552,6 @@
       resetDwell();
       return;
     }
-    if (now - state.lastClickAt < 150 || now - state.lastDragEndAt < 260) {
-      resetDwell();
-      return;
-    }
-
     const target = isEligibleTarget(state.hovered) ? state.hovered : null;
     if (!target) {
       resetDwell();
@@ -565,6 +560,12 @@
 
     const { x, y } = state.display;
     if (!dwell.anchor || dwell.target !== target) {
+      // The cooldown blocks a fresh hold right after a pinch or drag; the
+      // latched hold below must skip it or the click would re-arm itself.
+      if (now - state.lastClickAt < 150 || now - state.lastDragEndAt < 260) {
+        resetDwell();
+        return;
+      }
       dwell.anchor = { x, y };
       dwell.target = target;
       dwell.startedAt = now;
