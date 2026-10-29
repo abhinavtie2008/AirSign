@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '2.5.0';
+  const VERSION = '2.5.1';
   const DETECT_INTERVAL_MS = 1000 / 30;
   const PREVIEW_INTERVAL_MS = 120;
   const PREVIEW_WIDTH = 320;
