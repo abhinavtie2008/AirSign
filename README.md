@@ -8,7 +8,7 @@
 
 Touchless browsing for Chrome and Edge. Point, pinch, drag, and scroll with your hand.
 
-**[Add to Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe)** · **[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.3.2](https://github.com/abhinavtie2008/AirSign/releases/latest)**
+**[Add to Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe)** · **[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.4.0](https://github.com/abhinavtie2008/AirSign/releases/latest)**
 
 **Jump to:** [Install](#install) · [Gestures](#gestures) · [Camera bubble](#camera-bubble) · [Tuning](#tuning) · [Test page](#the-test-page) · [Privacy](#privacy) · [Troubleshooting](#troubleshooting) · [Development](#development)
 
@@ -38,7 +38,7 @@ AirSign is published as [AirSign — Touchless Browsing](https://microsoftedge.m
 
 ### Unpacked (Chrome, or Edge without the store)
 
-1. Download `AirSign-v2.3.2.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
+1. Download `AirSign-v2.4.0.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
 2. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
 3. Turn on **Developer mode** (top-right).
 4. Click **Load unpacked** and select the folder that contains `manifest.json`.
@@ -59,6 +59,7 @@ The test page is optional but recommended: click **Open test page** in the panel
 | 🤏 Pinch | Click | Bring your thumb and index fingertip together. One pinch = one click, with a short cooldown so a held pinch cannot click twice. Click assist previews the nearby target before you pinch. |
 | ✊ Fist | Grab and drag | Close your whole hand over something, move, then open your hand to release. |
 | ✌️ Two fingers | Scroll | Extend your index and middle fingers, then move your hand up or down. Scroll distance is measured in hand widths, so it feels the same near or far from the camera. |
+| ⏳ Dwell (optional) | Click without pinching | Turn on **Dwell to click** in Tuning, then hold a still point over a button or link. A ring fills around the cursor and clicks when it closes. |
 
 Hold a gesture for a couple of frames. AirSign debounces pose changes, so a single noisy frame will not trigger anything.
 
@@ -95,6 +96,8 @@ Open the **Tuning** section in the side panel:
 - **Smoothing** — higher values steady the cursor more; lower values feel snappier.
 - **Mirror camera** — on by default, so moving your hand right moves the cursor right.
 - **Click assist** — on by default. When your fingertip is within about 18 px of a button or link (and not already over one), AirSign outlines that target and adds a small “CLICK + name” tag. Pinching then clicks the previewed element, even if the fingertip is a few pixels off. The cursor itself does not jump, so you can still see exactly where your hand is.
+- **Dwell to click** — off by default. Hold a point still over a button or link and a ring fills around the cursor; when it closes, AirSign clicks that target. Only interactive targets count, and moving, losing your hand, or changing pose cancels the hold.
+- **Dwell time** — how long the hold lasts, from 400 to 1500 ms. The default is 800 ms.
 - **Pinch calibration** — fit click detection to your own thumb and index finger. The defaults work for most hands; calibrate if pinches click too easily, feel unreliable, or if the panel regularly misreads a relaxed hand as a click.
 
 ### Click assist
@@ -108,6 +111,16 @@ Aiming a cursor in mid-air is imprecise, especially next to small or tightly pac
 - Turn **Click assist** off in Tuning to require exact hits.
 
 The radius is deliberately small (18 px to acquire, 28 px to keep), and probe points only look at real interactive elements under and around the fingertip. Dense toolbars, icon buttons, and neighbouring +/− controls resolve to the nearest center.
+
+### Dwell to click
+
+Pinching is precise once calibrated, but holding still is easier at a distance. Turn on **Dwell to click** in Tuning and every clickable target also becomes a hold target:
+
+- The ring around the cursor fills while the point stays steady. Only targets click assist would recognise count, so empty page space never clicks.
+- Moving more than about 14 px, losing your hand, or switching to a fist or two-finger pose empties the ring. Small wobble is fine; drifting is not.
+- Dwell and pinch share one click cooldown, so a target cannot be clicked twice in quick succession.
+- After a dwell click the ring stays latched until you move away or the target changes, so resting on a control cannot click it over and over.
+- **Dwell time** sets the hold from 400 to 1500 ms (800 ms by default). Shorter is faster but easier to trigger by accident.
 
 ### Calibrating your pinch
 
@@ -126,7 +139,7 @@ Settings are stored with `chrome.storage.local`.
 2. **Detect** — `@mediapipe/tasks-vision` (bundled locally) runs `HandLandmarker` on a `<video>` at up to 30 fps and returns 21 landmarks. In bubble mode the offscreen document also draws a mirrored JPEG preview with the hand skeleton about every 120 ms.
 3. **Interpret** — `lib/gestures.mjs` classifies the hand shape, maps the index fingertip through an active zone, smooths it with a One Euro filter, and handles debouncing, pinch hysteresis, click locking and suppressed clicks after a fist. Pinch thresholds are the defaults until calibration replaces them, and clicks have a 320 ms cooldown. Scroll distance is divided by hand width, so moving your hand the same physical distance scrolls the same amount near or far from the lens. `lib/one-euro.mjs` is the filter itself.
 4. **Send** — with the panel open, the panel sends a normalized frame (`pose`, `x`, `y`, palm coordinates, scroll anchor, hand width) directly to the target page with `chrome.tabs.sendMessage`. In bubble mode, the offscreen tracker sends frames and previews to the service worker, which forwards frames to the target tab and previews to the bubble. The sandbox receives the same frames via a runtime broadcast.
-5. **Act** — `content.js` interpolates the cursor, draws a shadow-DOM overlay, previews the nearest eligible click target, and dispatches genuine pointer, mouse and click events. Fist drag is palm-anchored and relative; two-finger scroll finds the scrollable element under the cursor and falls back to the page.
+5. **Act** — `content.js` interpolates the cursor, draws a shadow-DOM overlay, previews the nearest eligible click target, times the optional dwell ring, and dispatches genuine pointer, mouse and click events. Fist drag is palm-anchored and relative; two-finger scroll finds the scrollable element under the cursor and falls back to the page.
 
 The service worker configures the side panel and, in bubble mode, acts as a router: it starts and stops the offscreen tracker, forwards frames and previews, and restores the panel on request. Gesture interpretation still runs entirely in the extension, and the router never sends previews anywhere except the bubble in the target tab.
 
@@ -173,7 +186,7 @@ or directly:
 node --test tests/gestures.test.mjs tests/one-euro.test.mjs
 ```
 
-The suite covers point/pinch/fist/scroll classification, debounce thresholds, pinch hysteresis, click suppression after a fist, click locking, click cooldown, calibration derivation and validation, calibrated thresholds, distance-normalised scrolling, mirror/reach mapping, clamping, palm movement, dropout resets, and the One Euro filter.
+The suite covers point/pinch/fist/scroll classification, debounce thresholds, pinch hysteresis, click suppression after a fist, click locking, click cooldown, calibration derivation and validation, calibrated thresholds, distance-normalised scrolling, mirror/reach mapping, clamping, palm movement, dropout resets, dwell duration bounds, and the One Euro filter.
 
 Syntax check all runtime files:
 

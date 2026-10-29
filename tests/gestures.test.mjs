@@ -5,7 +5,11 @@ import {
   CLICK_COOLDOWN_MS,
   createGestureEngine,
   derivePinchCalibration,
+  DWELL_DEFAULT_MS,
+  DWELL_MAX_MS,
+  DWELL_MIN_MS,
   fingerExtended,
+  normalizeDwellMs,
   normalizePinchCalibration,
   pinchRatio,
   PINCH_OFF,
@@ -287,6 +291,20 @@ test('a second pinch cannot click during the cooldown window', () => {
 
   const afterCooldown = feed(engine, pinchHand(), 8, clickedAt + CLICK_COOLDOWN_MS);
   assert.equal(afterCooldown.pose, 'click');
+});
+
+test('dwell duration normalises into the supported range', () => {
+  assert.equal(DWELL_MIN_MS, 400);
+  assert.equal(DWELL_MAX_MS, 1500);
+  assert.equal(DWELL_DEFAULT_MS, 800);
+
+  assert.equal(normalizeDwellMs(undefined), DWELL_DEFAULT_MS);
+  assert.equal(normalizeDwellMs(null), DWELL_DEFAULT_MS);
+  assert.equal(normalizeDwellMs('nope'), DWELL_DEFAULT_MS);
+  assert.equal(normalizeDwellMs(120), DWELL_MIN_MS);
+  assert.equal(normalizeDwellMs(99999), DWELL_MAX_MS);
+  assert.equal(normalizeDwellMs('650'), 650);
+  assert.equal(normalizeDwellMs(733.6), 734);
 });
 
 test('scroll travel is normalised across camera distances', () => {

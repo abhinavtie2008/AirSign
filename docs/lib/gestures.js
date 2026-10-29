@@ -1,9 +1,22 @@
 import { OneEuroFilter } from './one-euro.js';
 
-export const GESTURE_VERSION = '2.3.2';
+export const GESTURE_VERSION = '2.4.0';
 export const PINCH_ON = 0.3;
 export const PINCH_OFF = 0.46;
 export const CLICK_COOLDOWN_MS = 320;
+
+// Dwell-to-click: holding a still point over a target clicks it. The duration
+// is a user setting, so the bounds live here and the panel reuses them.
+export const DWELL_DEFAULT_MS = 800;
+export const DWELL_MIN_MS = 400;
+export const DWELL_MAX_MS = 1500;
+
+export function normalizeDwellMs(value) {
+  if (value === null || value === undefined || value === '') return DWELL_DEFAULT_MS;
+  const ms = Number(value);
+  if (!Number.isFinite(ms)) return DWELL_DEFAULT_MS;
+  return Math.round(Math.min(DWELL_MAX_MS, Math.max(DWELL_MIN_MS, ms)));
+}
 
 // One "hand width" of vertical travel maps to this much scroll offset. Hand
 // width normalisation keeps the scroll speed the same at any camera distance.

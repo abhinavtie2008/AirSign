@@ -122,6 +122,17 @@
           </div>
           <label class="switch"><input id="assist" type="checkbox" checked><span class="switch-track" aria-hidden="true"></span></label>
         </div>
+        <div class="field switch-field">
+          <div>
+            <div class="field-label">Dwell to click</div>
+            <div class="hint">Hold a still point over a target until the ring fills.</div>
+          </div>
+          <label class="switch"><input id="dwell" type="checkbox"><span class="switch-track" aria-hidden="true"></span></label>
+        </div>
+        <div class="field">
+          <div class="field-head"><label class="field-label" for="dwellMs">Dwell time</label><span id="dwellMsValue" class="hint">800 ms</span></div>
+          <input id="dwellMs" type="range" min="400" max="1500" step="50" value="800">
+        </div>
         <div class="field">
           <div class="field-head">
             <span class="field-label">Pinch calibration</span>

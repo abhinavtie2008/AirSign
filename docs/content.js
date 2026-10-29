@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '2.3.2';
+  const VERSION = '2.4.0';
   if (window.__airsignBridgeVersion) {
     if (window.__airsignBridgeVersion !== VERSION) {
       console.warn(`AirSign: page bridge ${window.__airsignBridgeVersion} is stale; reload this page.`);
@@ -33,6 +33,13 @@
     return points;
   })();
 
+  // Dwell to click: a still point over a target fires a click once the ring
+  // fills. The panel normalises the duration; this clamp is defensive.
+  const DWELL_MOVE_PX = 14;
+  const DWELL_MS_FLOOR = 200;
+  const DWELL_MS_CEIL = 5000;
+  const DWELL_RING_LENGTH = 2 * Math.PI * 23;
+
   const state = {
     visible: false,
     frozen: false,
@@ -59,7 +66,8 @@
     shownDirection: '',
     lastScrollAt: 0,
     lastClickAt: 0,
-    lastDragEndAt: 0
+    lastDragEndAt: 0,
+    dwell: { ms: 0, anchor: null, target: null, startedAt: 0, armed: true, progress: 0 }
   };
 
   const host = document.createElement('div');
@@ -90,6 +98,16 @@
         background: #22d3ee; box-shadow: 0 0 14px #22d3ee;
         transition: background .14s ease, border-radius .14s ease, transform .14s ease, box-shadow .14s ease;
       }
+      .dwell {
+        position: absolute; inset: 0; opacity: 0; transform: rotate(-90deg);
+        transition: opacity .1s ease;
+      }
+      .dwell circle {
+        fill: none; stroke: #22d3ee; stroke-width: 3; stroke-linecap: round;
+        stroke-dasharray: 144.5; stroke-dashoffset: 144.5;
+        filter: drop-shadow(0 0 6px rgba(34,211,238,.65));
+      }
+      .cursor.dwelling .dwell { opacity: 1; }
       .label {
         position: absolute; top: 58px; left: 50%; transform: translateX(-50%);
         padding: 4px 9px; border-radius: 999px;
@@ -146,14 +164,17 @@
         to { transform: scale(5); opacity: 0; }
       }
       @media (prefers-reduced-motion: reduce) {
-        .cursor, .ring, .dot, .label, .hover-box { transition: none; }
+        .cursor, .ring, .dot, .label, .hover-box, .dwell { transition: none; }
         .ripple { animation-duration: .01s; }
       }
     </style>
     <div class="hover-box">
       <span class="hover-tag"><span class="hover-tag-kicker">CLICK</span><span class="hover-tag-name"></span></span>
     </div>
-    <div class="cursor"><div class="ring"></div><div class="dot"></div><div class="label">POINT</div></div>
+    <div class="cursor">
+      <svg class="dwell" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"></circle></svg>
+      <div class="ring"></div><div class="dot"></div><div class="label">POINT</div>
+    </div>
     <div class="ripples"></div>
   `;
 
@@ -165,6 +186,7 @@
   const hoverTag = root.querySelector('.hover-tag');
   const hoverTagName = root.querySelector('.hover-tag-name');
   const rippleLayer = root.querySelector('.ripples');
+  const dwellCircle = root.querySelector('.dwell circle');
 
   let rafId = 0;
   let lastTick = 0;
@@ -495,6 +517,77 @@
     showHover(target, assisted, target !== state.hovered);
   }
 
+  function resetDwell() {
+    const dwell = state.dwell;
+    if (!dwell.progress && !dwell.anchor && dwell.armed) return;
+    dwell.anchor = null;
+    dwell.target = null;
+    dwell.startedAt = 0;
+    dwell.armed = true;
+    dwell.progress = 0;
+    cursorEl.classList.remove('dwelling');
+    dwellCircle.style.strokeDashoffset = String(DWELL_RING_LENGTH);
+  }
+
+  function fireDwell(target) {
+    const now = performance.now();
+    state.lastClickAt = now;
+    if (state.hoverAssisted) {
+      const point = visibleCenter(target.getBoundingClientRect());
+      clickElement(target, point.x, point.y);
+      flashTarget();
+    } else {
+      clickAt(state.display.x, state.display.y);
+    }
+    setLabel('CLICK');
+  }
+
+  /**
+   * Runs on the render loop so cancelled holds restart the instant the cursor
+   * moves, rather than on the next 30 fps frame from the tracker.
+   */
+  function updateDwell(now) {
+    const dwell = state.dwell;
+    if (!dwell.ms || state.pose !== 'point' || !state.armed) {
+      resetDwell();
+      return;
+    }
+    const target = isEligibleTarget(state.hovered) ? state.hovered : null;
+    if (!target) {
+      resetDwell();
+      return;
+    }
+
+    const { x, y } = state.display;
+    if (!dwell.anchor || dwell.target !== target) {
+      // The cooldown blocks a fresh hold right after a pinch or drag; the
+      // latched hold below must skip it or the click would re-arm itself.
+      if (now - state.lastClickAt < 150 || now - state.lastDragEndAt < 260) {
+        resetDwell();
+        return;
+      }
+      dwell.anchor = { x, y };
+      dwell.target = target;
+      dwell.startedAt = now;
+      dwell.armed = true;
+    } else if (Math.hypot(x - dwell.anchor.x, y - dwell.anchor.y) > DWELL_MOVE_PX) {
+      dwell.anchor = { x, y };
+      dwell.startedAt = now;
+      dwell.armed = true;
+    }
+
+    dwell.progress = Math.min(1, (now - dwell.startedAt) / dwell.ms);
+    cursorEl.classList.add('dwelling');
+    dwellCircle.style.strokeDashoffset = String(DWELL_RING_LENGTH * (1 - dwell.progress));
+    if (dwell.progress >= 1 && dwell.armed) {
+      // Latch until the cursor moves or the target changes, so resting on a
+      // control cannot click it over and over.
+      dwell.armed = false;
+      fireDwell(target);
+    }
+    if (dwell.progress > 0.02) setLabel('HOLD');
+  }
+
   function setPoseVisual(pose) {
     cursorEl.classList.remove('click', 'drag', 'scroll', 'idle');
     const labels = {
@@ -523,6 +616,7 @@
   function hideCursor() {
     state.visible = false;
     cursorEl.classList.remove('visible', 'click', 'drag', 'scroll', 'idle');
+    resetDwell();
     clearHover();
   }
 
@@ -539,11 +633,16 @@
     ensureHost();
     const now = performance.now();
     state.lastFrameAt = now;
+    const dwellMs = Number(frame && frame.dwellMs);
+    state.dwell.ms = Number.isFinite(dwellMs) && dwellMs >= DWELL_MS_FLOOR
+      ? Math.min(DWELL_MS_CEIL, dwellMs)
+      : 0;
 
     if (!frame || !frame.handPresent || frame.pose === 'none') {
       if (!state.lostSince) state.lostSince = now;
       // Keep a drag alive through a short dropout; the loop releases it after LOST_MS.
       if (!state.dragging) state.pose = 'none';
+      resetDwell();
       setLabel('NO HAND');
       return;
     }
@@ -562,6 +661,7 @@
     const previous = state.pose;
     state.pose = pose;
     state.active = true;
+    if (pose !== 'point') resetDwell();
     startLoop();
 
     if (previous === 'drag' && pose !== 'drag') endDrag(state.display.x, state.display.y);
@@ -717,6 +817,8 @@
         state.dragOrigin = null;
       }
       if (state.pose === 'point' || state.pose === 'idle') updateHover();
+      if (state.pose === 'point') updateDwell(now);
+      else resetDwell();
     }
   }
 
@@ -729,6 +831,7 @@
 
   function stopBridge() {
     stopInteraction();
+    state.dwell.ms = 0;
     hideCursor();
     state.pose = 'none';
     state.active = false;
@@ -781,6 +884,7 @@
         assist: state.assist,
         hovered: state.hovered ? targetName(state.hovered) : null,
         assisted: state.hoverAssisted,
+        dwell: { ms: state.dwell.ms, progress: state.dwell.progress, armed: state.dwell.armed },
         display: { ...state.display },
         target: { ...state.target }
       };
