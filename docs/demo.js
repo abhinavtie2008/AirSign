@@ -7,7 +7,7 @@ import {
   REACH_PRESETS
 } from './lib/gestures.js';
 
-const VERSION = '2.5.0';
+const VERSION = '2.5.1';
 const SETTINGS_KEY = 'airsign.demo.settings.v1';
 const BUBBLE_KEY = 'airsign.demo.bubble.v1';
 

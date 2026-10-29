@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '2.5.0';
+  const VERSION = '2.5.1';
   if (window.__airsignBubbleVersion) {
     if (window.__airsignBubbleVersion !== VERSION) {
       console.warn(`AirSign: camera bubble ${window.__airsignBubbleVersion} is stale; reload this page.`);
@@ -97,6 +97,9 @@
       }
       .card.paused .live i { background: #64748b; box-shadow: none; animation: none; }
       @keyframes airsign-bubble-pulse { 50% { opacity: .4; } }
+      @media (prefers-reduced-motion: reduce) {
+        .live i { animation: none; }
+      }
       .status {
         margin: 8px 1px 0; min-height: 13px;
         color: #98a2c6; font-size: 10px; line-height: 1.35;

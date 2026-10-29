@@ -202,11 +202,25 @@ function isPausedSite(tab) {
   return Boolean(origin && pausedSites.has(origin));
 }
 
+function normalizePausedSites(value) {
+  const sites = new Set();
+  if (!Array.isArray(value)) return sites;
+  for (const entry of value) {
+    if (typeof entry !== 'string') continue;
+    try {
+      const url = new URL(entry);
+      if ((url.protocol === 'http:' || url.protocol === 'https:') && url.origin === entry) {
+        sites.add(entry);
+      }
+    } catch (_) {}
+  }
+  return sites;
+}
+
 async function loadPausedSites() {
   try {
     const stored = await chrome.storage.local.get(PAUSED_KEY);
-    const list = stored && stored[PAUSED_KEY];
-    pausedSites = new Set(Array.isArray(list) ? list.filter((value) => typeof value === 'string' && value) : []);
+    pausedSites = normalizePausedSites(stored && stored[PAUSED_KEY]);
   } catch (_) {
     pausedSites = new Set();
   }

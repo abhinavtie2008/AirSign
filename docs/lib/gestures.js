@@ -1,6 +1,6 @@
 import { OneEuroFilter } from './one-euro.js';
 
-export const GESTURE_VERSION = '2.5.0';
+export const GESTURE_VERSION = '2.5.1';
 export const PINCH_ON = 0.3;
 export const PINCH_OFF = 0.46;
 export const CLICK_COOLDOWN_MS = 320;

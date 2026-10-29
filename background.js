@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '2.5.0';
+const VERSION = '2.5.1';
 const BUBBLE_KEY = 'airsignBubbleState';
 const RESTORE_KEY = 'airsignRestorePending';
 const PAUSED_KEY = 'airsignPausedSites';
@@ -9,6 +9,7 @@ const SANDBOX_PATH = 'sandbox.html';
 
 let cachedBubble;
 let pausedSites = new Set();
+let pausedRevision = 0;
 
 function configureSidePanel() {
   chrome.sidePanel
@@ -71,13 +72,29 @@ function isPausedUrl(url) {
   return Boolean(origin && pausedSites.has(origin));
 }
 
+function normalizePausedSites(value) {
+  const sites = new Set();
+  if (!Array.isArray(value)) return sites;
+  for (const entry of value) {
+    if (typeof entry !== 'string') continue;
+    try {
+      const url = new URL(entry);
+      if ((url.protocol === 'http:' || url.protocol === 'https:') && url.origin === entry) {
+        sites.add(entry);
+      }
+    } catch (_) {}
+  }
+  return sites;
+}
+
 async function loadPausedSites() {
+  const revision = pausedRevision;
   try {
     const stored = await chrome.storage.local.get(PAUSED_KEY);
-    const list = stored && stored[PAUSED_KEY];
-    pausedSites = new Set(Array.isArray(list) ? list.filter((value) => typeof value === 'string' && value) : []);
+    if (revision !== pausedRevision) return;
+    pausedSites = normalizePausedSites(stored && stored[PAUSED_KEY]);
   } catch (_) {
-    pausedSites = new Set();
+    if (revision === pausedRevision) pausedSites = new Set();
   }
 }
 
@@ -86,6 +103,7 @@ function pausedStatusMessage(url) {
 }
 
 async function syncBubblePause() {
+  await pausedReady;
   const state = await getBubble();
   if (!state || state.kind !== 'web') return;
   const paused = isPausedUrl(state.url);
@@ -100,12 +118,12 @@ async function syncBubblePause() {
   }
 }
 
-loadPausedSites();
+const pausedReady = loadPausedSites();
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local' || !changes[PAUSED_KEY]) return;
-  const list = changes[PAUSED_KEY].newValue;
-  pausedSites = new Set(Array.isArray(list) ? list.filter((value) => typeof value === 'string' && value) : []);
+  pausedRevision += 1;
+  pausedSites = normalizePausedSites(changes[PAUSED_KEY].newValue);
   syncBubblePause();
 });
 
@@ -228,8 +246,10 @@ async function showBubble(state) {
 }
 
 async function forwardFrame(payload) {
+  await pausedReady;
   const state = await getBubble();
-  if (!state || state.paused) return;
+  if (!state) return;
+  if (state.paused || (state.kind === 'web' && isPausedUrl(state.url))) return;
   sendToPage(state, { type: 'AIRSIGN_FRAME', payload });
 }
 
@@ -245,8 +265,11 @@ async function forwardPreview(message) {
 }
 
 async function forwardStatus(message) {
+  await pausedReady;
   const state = await getBubble();
-  if (!state || (state.paused && message.state !== 'error')) return;
+  if (!state) return;
+  const paused = state.paused || (state.kind === 'web' && isPausedUrl(state.url));
+  if (paused && message.state !== 'error') return;
   sendToPage(state, {
     type: 'AIRSIGN_BUBBLE_STATUS',
     state: message.state,
@@ -262,6 +285,7 @@ async function enterBubble(message) {
     throw new Error('This page cannot host the AirSign bubble. Switch to a normal website.');
   }
 
+  await pausedReady;
   if (await getBubble()) await stopBubble({ hide: true, notify: false });
 
   const state = {
@@ -457,6 +481,7 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   const state = await getBubble();
   if (!state || state.tabId !== tabId) return;
+  await pausedReady;
 
   if (changeInfo.url && !changeInfo.status) {
     state.url = changeInfo.url;

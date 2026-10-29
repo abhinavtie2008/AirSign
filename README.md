@@ -8,7 +8,7 @@
 
 Touchless browsing for Chrome and Edge. Point, pinch, drag, and scroll with your hand.
 
-**[Add to Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe)** · **[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.5.0](https://github.com/abhinavtie2008/AirSign/releases/latest)**
+**[Add to Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe)** · **[Try the live demo](https://abhinavtie2008.github.io/AirSign/)** · **[Download v2.5.1](https://github.com/abhinavtie2008/AirSign/releases/latest)**
 
 **Jump to:** [Install](#install) · [Gestures](#gestures) · [Camera bubble](#camera-bubble) · [Per-site pause](#per-site-pause) · [Tuning](#tuning) · [Test page](#the-test-page) · [Privacy](#privacy) · [Troubleshooting](#troubleshooting) · [Development](#development)
 
@@ -40,7 +40,7 @@ AirSign is published as [AirSign — Touchless Browsing](https://microsoftedge.m
 
 ### Unpacked (Chrome, or Edge without the store)
 
-1. Download `AirSign-v2.5.0.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
+1. Download `AirSign-v2.5.1.zip` from [the latest release](https://github.com/abhinavtie2008/AirSign/releases/latest) and unzip it. Keep the folder together — the `vendor/` directory contains the local MediaPipe runtime.
 2. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
 3. Turn on **Developer mode** (top-right).
 4. Click **Load unpacked** and select the folder that contains `manifest.json`.
@@ -206,7 +206,7 @@ Syntax check all runtime files:
 npm run check
 ```
 
-The UI is exercised end-to-end in headless Chrome with a fake camera and synthetic hand landmarks (startup, calibration, click assist near-miss and exact hits, assist toggle, click, drag, scroll, permission page). Bubble mode is tested on both the sandbox and a normal web page: minimizing closes the real side panel, the offscreen tracker drives a page click, the bubble drags and persists its position, the bubble and tracking survive a page navigation, hiding the tab pauses the camera, and Panel restores the side panel and auto-starts tracking. A real-camera pass in your own room is still the best check for lighting, seating distance and camera angle.
+The automated suite covers the gesture engine and the One Euro filter (`npm test`, 26 tests). Browser behavior is verified manually before release: startup, calibration, click assist, click, drag, scroll, the permission page, minimizing and restoring the camera bubble, tab hiding, and page navigation on both a normal page and the sandbox. A headless-Chrome harness with a fake camera and synthetic hand landmarks is used during development but is not committed, so `npm test` does not exercise browser behavior. A real-camera pass in your own room is still the best check for lighting, seating distance and camera angle.
 
 ## Troubleshooting
 

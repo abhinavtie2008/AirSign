@@ -48,6 +48,66 @@ async function collect(directory) {
   return results;
 }
 
+function collectManifestAssets(value, assets = new Set()) {
+  if (typeof value === 'string') {
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(value) && /\.(?:js|mjs|html|css|png|svg|json|wasm|task)$/i.test(value)) {
+      assets.add(value);
+    }
+  } else if (Array.isArray(value)) {
+    for (const item of value) collectManifestAssets(item, assets);
+  } else if (value && typeof value === 'object') {
+    for (const item of Object.values(value)) collectManifestAssets(item, assets);
+  }
+  return assets;
+}
+
+async function collectHtmlAssets(directory) {
+  const assets = new Set();
+  for (const name of await readdir(directory)) {
+    if (!name.endsWith('.html')) continue;
+    const source = await readFile(path.join(directory, name), 'utf8');
+    for (const match of source.matchAll(/<(?:script|link|img|iframe|source)\b[^>]*?(?:src|href)="([^"]+)"/gi)) {
+      const target = match[1];
+      if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(target)) continue;
+      assets.add(path.posix.normalize(target.replace(/^\.?\//, '')));
+    }
+  }
+  return assets;
+}
+
+async function collectJsAssets(directory) {
+  const assets = new Set();
+  for (const file of await collect(directory)) {
+    if (!/\.(?:js|mjs)$/i.test(file)) continue;
+    const relative = path.relative(directory, file).split(path.sep).join('/');
+    if (relative.startsWith('vendor/')) continue;
+    const source = await readFile(file, 'utf8');
+    for (const match of source.matchAll(/['"]([^'"]+\.(?:js|mjs|html|css|png|svg|json|wasm|task))['"]/gi)) {
+      const target = match[1];
+      if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(target) || target.includes('${')) continue;
+      const resolved = target.startsWith('.')
+        ? path.posix.normalize(path.posix.join(path.posix.dirname(relative), target))
+        : path.posix.normalize(target);
+      assets.add(resolved);
+    }
+  }
+  return assets;
+}
+
+async function zipEntryNames(file) {
+  const buffer = await readFile(file);
+  const names = [];
+  let offset = 0;
+  while (offset + 30 <= buffer.length && buffer.readUInt32LE(offset) === 0x04034b50) {
+    const compressedSize = buffer.readUInt32LE(offset + 18);
+    const nameLength = buffer.readUInt16LE(offset + 26);
+    const extraLength = buffer.readUInt16LE(offset + 28);
+    names.push(buffer.toString('utf8', offset + 30, offset + 30 + nameLength));
+    offset += 30 + nameLength + extraLength + compressedSize;
+  }
+  return names;
+}
+
 const CRC_TABLE = (() => {
   const table = new Uint32Array(256);
   for (let n = 0; n < 256; n += 1) {
@@ -71,6 +131,20 @@ const DOS_DATE = ((2020 - 1980) << 9) | (1 << 5) | 1;
 const filesToZip = await collect(stage);
 const relativeToDist = (file) => path.relative(dist, file).split(path.sep).join('/');
 const relativeToStage = (file) => path.relative(stage, file).split(path.sep).join('/');
+
+const stagedNames = new Set(filesToZip.map(relativeToStage));
+const requiredAssets = new Set([
+  'manifest.json',
+  ...collectManifestAssets(manifest),
+  ...await collectHtmlAssets(stage),
+  ...await collectJsAssets(stage)
+]);
+const missingAssets = [...requiredAssets].filter((name) => !stagedNames.has(name));
+if (missingAssets.length) {
+  console.error(`Package is missing referenced assets: ${missingAssets.join(', ')}`);
+  process.exit(1);
+}
+console.log(`Staged ${filesToZip.length} files; verified ${requiredAssets.size} referenced assets.`);
 
 async function writeZip(entries, destination, entryName) {
   const localParts = [];
@@ -143,5 +217,26 @@ async function writeZip(entries, destination, entryName) {
   console.log(`SHA-256: ${digest}`);
 }
 
+async function verifyArchive(file, prefix) {
+  const expected = filesToZip.map((entry) => `${prefix}${relativeToStage(entry)}`);
+  const expectedSet = new Set(expected);
+  const names = await zipEntryNames(file);
+  const actual = new Set(names);
+  const missing = expected.filter((name) => !actual.has(name));
+  const extra = names.filter((name) => !expectedSet.has(name));
+  if (names.length !== expected.length || missing.length || extra.length) {
+    console.error(`Archive verification failed for ${path.basename(file)}.`);
+    if (missing.length) console.error(`- Missing: ${missing.join(', ')}`);
+    if (extra.length) console.error(`- Unexpected: ${extra.join(', ')}`);
+    if (names.length !== expected.length) {
+      console.error(`- Entry count ${names.length}, expected ${expected.length}.`);
+    }
+    process.exit(1);
+  }
+  console.log(`Verified ${path.basename(file)}: ${names.length} entries.`);
+}
+
 await writeZip(filesToZip, zipPath, relativeToDist);
+await verifyArchive(zipPath, `${folder}/`);
 await writeZip(filesToZip, storeZipPath, relativeToStage);
+await verifyArchive(storeZipPath, '');
