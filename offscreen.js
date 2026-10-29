@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '2.3.2';
+  const VERSION = '2.4.0';
   const DETECT_INTERVAL_MS = 1000 / 30;
   const PREVIEW_INTERVAL_MS = 120;
   const PREVIEW_WIDTH = 320;
@@ -257,6 +257,7 @@
       scrollY: frame.scrollY,
       pinchRatio: frame.pinchRatio,
       assist: settings.assist !== false,
+      dwellMs: settings.dwell === true && Number.isFinite(Number(settings.dwellMs)) ? Number(settings.dwellMs) : 0,
       at: frame.at
     };
     send({ type: 'AIRSIGN_TRACKER_FRAME', source: 'offscreen', payload });

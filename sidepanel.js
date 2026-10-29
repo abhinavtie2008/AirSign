@@ -1,8 +1,10 @@
 import {
   createGestureEngine,
   derivePinchCalibration,
+  DWELL_DEFAULT_MS,
   GESTURE_VERSION,
   HAND_CONNECTIONS,
+  normalizeDwellMs,
   normalizePinchCalibration,
   POSE_LABELS
 } from './lib/gestures.mjs';
@@ -13,7 +15,7 @@ const DETECT_INTERVAL_MS = 1000 / 30;
 const CALIBRATION_CAPTURE_MS = 1400;
 const CALIBRATION_PINCH_WAIT_MS = 6000;
 
-const DEFAULT_SETTINGS = Object.freeze({ reach: 'balanced', smoothing: 35, mirror: true, assist: true, calibration: null });
+const DEFAULT_SETTINGS = Object.freeze({ reach: 'balanced', smoothing: 35, mirror: true, assist: true, dwell: false, dwellMs: DWELL_DEFAULT_MS, calibration: null });
 const REACH_HINTS = {
   compact: 'Small hand travel',
   balanced: 'Comfortable hand travel',
@@ -63,6 +65,9 @@ const smoothingInput = $('smoothing');
 const smoothingValue = $('smoothingValue');
 const mirrorInput = $('mirror');
 const assistInput = $('assist');
+const dwellInput = $('dwell');
+const dwellMsInput = $('dwellMs');
+const dwellMsValue = $('dwellMsValue');
 const reachButtons = [...document.querySelectorAll('[data-reach]')];
 const calibrationCard = $('calibrationCard');
 const calibrationStep = $('calibrationStep');
@@ -319,7 +324,10 @@ function applySettingsUI() {
   smoothingValue.textContent = String(settings.smoothing);
   mirrorInput.checked = settings.mirror;
   assistInput.checked = settings.assist !== false;
-  tuningSummary.textContent = `${settings.reach.charAt(0).toUpperCase()}${settings.reach.slice(1)} · ${settings.smoothing}`;
+  dwellInput.checked = settings.dwell === true;
+  dwellMsInput.value = String(settings.dwellMs);
+  dwellMsValue.textContent = `${settings.dwellMs} ms`;
+  tuningSummary.textContent = `${settings.reach.charAt(0).toUpperCase()}${settings.reach.slice(1)} · ${settings.smoothing}${settings.dwell ? ' · Dwell' : ''}`;
 
   const calibrated = Boolean(settings.calibration);
   calibrationState.textContent = calibrated ? 'Calibrated' : 'Default';
@@ -356,6 +364,8 @@ async function loadSettings() {
         smoothing: Number.isFinite(raw.smoothing) ? clamp(raw.smoothing, 0, 100) : DEFAULT_SETTINGS.smoothing,
         mirror: raw.mirror !== false,
         assist: raw.assist !== false,
+        dwell: raw.dwell === true,
+        dwellMs: normalizeDwellMs(raw.dwellMs),
         calibration: readCalibration(raw.calibration)
       };
     }
@@ -905,6 +915,7 @@ function sendFrame(frame) {
     scrollY: frame.scrollY,
     pinchRatio: frame.pinchRatio,
     assist: settings.assist !== false,
+    dwellMs: settings.dwell === true ? settings.dwellMs : 0,
     at: frame.at
   };
 
@@ -1378,6 +1389,14 @@ mirrorInput.addEventListener('change', () => {
 
 assistInput.addEventListener('change', () => {
   changeSettings({ assist: assistInput.checked });
+});
+
+dwellInput.addEventListener('change', () => {
+  changeSettings({ dwell: dwellInput.checked });
+});
+
+dwellMsInput.addEventListener('input', () => {
+  changeSettings({ dwellMs: normalizeDwellMs(dwellMsInput.value) });
 });
 
 calibrateBtn.addEventListener('click', beginCalibration);

@@ -1,6 +1,6 @@
 'use strict';
 
-const VERSION = '2.3.2';
+const VERSION = '2.4.0';
 const BUBBLE_KEY = 'airsignBubbleState';
 const RESTORE_KEY = 'airsignRestorePending';
 const OFFSCREEN_URL = 'offscreen.html';

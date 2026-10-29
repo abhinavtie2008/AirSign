@@ -1,10 +1,17 @@
-import { createGestureEngine, HAND_CONNECTIONS, POSE_LABELS, REACH_PRESETS } from './lib/gestures.js';
+import {
+  createGestureEngine,
+  DWELL_DEFAULT_MS,
+  HAND_CONNECTIONS,
+  normalizeDwellMs,
+  POSE_LABELS,
+  REACH_PRESETS
+} from './lib/gestures.js';
 
-const VERSION = '2.3.2';
+const VERSION = '2.4.0';
 const SETTINGS_KEY = 'airsign.demo.settings.v1';
 const BUBBLE_KEY = 'airsign.demo.bubble.v1';
 
-const DEFAULT_SETTINGS = { assist: true, reach: 'balanced', smoothing: 35 };
+const DEFAULT_SETTINGS = { assist: true, reach: 'balanced', smoothing: 35, dwell: false, dwellMs: DWELL_DEFAULT_MS };
 
 const PAUSE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="5" width="3.5" height="14" rx="1"/><rect x="13.5" y="5" width="3.5" height="14" rx="1"/></svg>';
 const PLAY_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" stroke="none" d="M8 5.2c0-.7.8-1.2 1.4-.8l9.2 6.8c.5.4.5 1.2 0 1.6l-9.2 6.8c-.6.4-1.4 0-1.4-.8V5.2Z"/></svg>';
@@ -37,6 +44,10 @@ const dragStage = $('dragStage');
 const noteCard = $('noteCard');
 const assistToggle = $('assistToggle');
 const assistState = $('assistState');
+const dwellToggle = $('dwellToggle');
+const dwellState = $('dwellState');
+const dwellMsInput = $('dwellMs');
+const dwellValue = $('dwellValue');
 const reachGroup = $('reachGroup');
 const smoothingInput = $('smoothing');
 const smoothingValue = $('smoothingValue');
@@ -84,7 +95,9 @@ function loadSettings() {
       : DEFAULT_SETTINGS.reach,
     smoothing: Number.isFinite(Number(stored.smoothing))
       ? clamp(Number(stored.smoothing), 0, 100)
-      : DEFAULT_SETTINGS.smoothing
+      : DEFAULT_SETTINGS.smoothing,
+    dwell: stored.dwell === true,
+    dwellMs: normalizeDwellMs(stored.dwellMs)
   };
 }
 
@@ -483,6 +496,7 @@ function detectFrame(now) {
         scrollY: frame.scrollY,
         pinchRatio: frame.pinchRatio,
         assist: settings.assist,
+        dwellMs: settings.dwell ? settings.dwellMs : 0,
         at: frame.at
       });
     }
@@ -838,6 +852,23 @@ assistToggle.addEventListener('click', () => {
   setAssist(!settings.assist);
 });
 
+function setDwell(on, persist = true) {
+  settings.dwell = Boolean(on);
+  dwellToggle.setAttribute('aria-checked', String(settings.dwell));
+  dwellState.textContent = settings.dwell ? 'On · hold to click' : 'Off · pinch only';
+  if (persist) saveSettings();
+}
+
+dwellToggle.addEventListener('click', () => {
+  setDwell(!settings.dwell);
+});
+
+dwellMsInput.addEventListener('input', () => {
+  settings.dwellMs = normalizeDwellMs(dwellMsInput.value);
+  dwellValue.textContent = `${settings.dwellMs} ms`;
+  saveSettings();
+});
+
 function setReach(reach, persist = true) {
   if (!Object.prototype.hasOwnProperty.call(REACH_PRESETS, reach)) return;
   settings.reach = reach;
@@ -864,9 +895,12 @@ smoothingInput.addEventListener('input', () => {
 
 function syncSettingsUI() {
   setAssist(settings.assist, false);
+  setDwell(settings.dwell, false);
   setReach(settings.reach, false);
   smoothingInput.value = String(settings.smoothing);
   smoothingValue.textContent = String(Math.round(settings.smoothing));
+  dwellMsInput.value = String(settings.dwellMs);
+  dwellValue.textContent = `${settings.dwellMs} ms`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -975,6 +1009,7 @@ window.__airsignDemo = {
       palmY: Number.isFinite(Number(frame.palmY)) ? Number(frame.palmY) : y,
       scrollY: Number.isFinite(Number(frame.scrollY)) ? Number(frame.scrollY) : 0.5,
       assist: settings.assist,
+      dwellMs: settings.dwell ? settings.dwellMs : 0,
       at: performance.now()
     };
     state.pose = payload.pose;

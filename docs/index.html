@@ -253,6 +253,10 @@
                     <span><strong>Click assist</strong><small id="assistState">On · forgiving aim</small></span>
                     <span class="switch" aria-hidden="true"><span></span></span>
                   </button>
+                  <button class="setting-toggle" id="dwellToggle" type="button" role="switch" aria-checked="false">
+                    <span><strong>Dwell to click</strong><small id="dwellState">Off · pinch only</small></span>
+                    <span class="switch" aria-hidden="true"><span></span></span>
+                  </button>
                   <div class="setting">
                     <div class="setting-head"><strong>Reach</strong><small>how much arm you use</small></div>
                     <div class="segmented" id="reachGroup" role="group" aria-label="Reach zone">
@@ -264,6 +268,10 @@
                   <div class="setting setting-range">
                     <div class="setting-head"><strong>Smoothing</strong><small id="smoothingValue">35</small></div>
                     <input class="range" id="smoothing" type="range" min="0" max="100" value="35" aria-label="Cursor smoothing">
+                  </div>
+                  <div class="setting setting-range">
+                    <div class="setting-head"><strong>Dwell time</strong><small id="dwellValue">800 ms</small></div>
+                    <input class="range" id="dwellMs" type="range" min="400" max="1500" step="50" value="800" aria-label="Dwell hold time">
                   </div>
                 </div>
               </article>
