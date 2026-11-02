@@ -52,7 +52,7 @@ const runtimeFiles = [
 
 const docsFiles = [
   'docs/.nojekyll',
-  'docs/index.html', 'docs/styles.css', 'docs/demo.js', 'docs/content.js',
+  'docs/index.html', 'docs/styles.css', 'docs/demo.js', 'docs/site.js', 'docs/content.js',
   'docs/lib/gestures.js', 'docs/lib/one-euro.js',
   'docs/vendor/vision_bundle.js', 'docs/vendor/hand_landmarker.task',
   'docs/vendor/wasm/vision_wasm_internal.js', 'docs/vendor/wasm/vision_wasm_internal.wasm',
@@ -111,6 +111,7 @@ for (const file of versionedFiles) {
 const docsIndex = (await read('docs/index.html')).toString('utf8');
 check(docsIndex.includes('src="./content.js"'), 'docs/index.html does not load the page bridge (docs/content.js).');
 check(docsIndex.includes('src="./demo.js"'), 'docs/index.html does not load the showcase module (docs/demo.js).');
+check(docsIndex.includes('src="./site.js"'), 'docs/index.html does not load the site interactions (docs/site.js).');
 
 check(!docsIndex.includes('vendor/vision_bundle.mjs'), 'docs/index.html should use the .js vision bundle copy.');
 check(!docsIndex.includes('lib/gestures.mjs'), 'docs/index.html should use the .js engine copy.');

@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AirSign — Your hand is the pointer</title>
-  <meta name="description" content="Point, pinch, drag and scroll the web through your webcam. AirSign tracks your hand locally in your browser — nothing leaves your machine. Try the live playground before you install.">
-  <meta name="theme-color" content="#05070c">
+  <meta name="description" content="Point, pinch, drag and scroll the web with your webcam. AirSign tracks your hand on-device in Chrome and Edge — nothing leaves your machine. Try the real gesture engine in your browser.">
+  <meta name="theme-color" content="#070a08">
   <meta property="og:title" content="AirSign — Your hand is the pointer">
-  <meta property="og:description" content="Touchless browsing with on-device hand tracking for Chrome and Edge. Try the real gesture engine in your browser, no install required.">
+  <meta property="og:description" content="Touchless browsing with on-device hand tracking for Chrome and Edge. The gesture engine runs in your tab — try it before you install.">
   <meta property="og:type" content="website">
   <link rel="icon" href="./icon128.png" type="image/png">
   <link rel="stylesheet" href="./styles.css">
@@ -19,17 +19,24 @@
     <span class="ambient-glow glow-a"></span>
     <span class="ambient-glow glow-b"></span>
     <span class="ambient-grid"></span>
+    <span class="ambient-noise"></span>
   </div>
 
-  <header class="site-header">
+  <header class="site-header" id="siteHeader">
+    <span class="scroll-bar" id="scrollBar" aria-hidden="true"></span>
     <div class="shell header-inner">
       <a class="brand" href="#top" aria-label="AirSign home">
-        <span class="brand-mark" aria-hidden="true"><span></span></span>
-        <span class="brand-name">AirSign</span>
-        <span class="version-pill">2.5.1</span>
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M13 27c-2.6 0-4.4-1.5-5.4-4.2l-2.4-6.3c-.4-1 .1-2.1 1.1-2.5 1-.4 2 .1 2.5 1l1.6 3.1V8.2c0-1.1.9-2 2-2s2 .9 2 2v5.3h.7V5.6c0-1.1.9-2 2-2s2 .9 2 2v7.9h.7V7.4c0-1.1.9-2 2-2s2 .9 2 2v6.1h.7v-3c0-1.1.9-2 2-2s2 .9 2 2v8.3c0 5.1-3.2 8.2-8.2 8.2H13Z"/><circle cx="9" cy="8.5" r="3.4"/></svg>
+        </span>
+        <span class="brand-type">
+          <span class="brand-name">AirSign</span>
+          <span class="brand-sub">touchless input</span>
+        </span>
+        <span class="version-pill">v2.5.1</span>
       </a>
 
-      <nav class="site-nav" aria-label="Primary">
+      <nav class="site-nav" id="siteNav" aria-label="Primary">
         <a href="#playground">Playground</a>
         <a href="#gestures">Gestures</a>
         <a href="#how">How it works</a>
@@ -37,136 +44,121 @@
       </nav>
 
       <div class="header-actions">
-        <a class="quiet-link" href="https://github.com/abhinavtie2008/AirSign" target="_blank" rel="noreferrer">GitHub</a>
-        <a class="btn btn-bright btn-sm" href="#install">Get AirSign</a>
+        <a class="quiet-link" href="https://github.com/abhinavtie2008/AirSign" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+        <a class="btn btn-signal btn-sm" href="#install">Get AirSign</a>
+        <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Toggle navigation">
+          <span></span><span></span>
+        </button>
       </div>
     </div>
   </header>
 
   <main>
     <!-- Hero ------------------------------------------------------------------>
-    <section class="hero">
+    <section class="hero" id="hero">
       <div class="shell hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="pulse-dot"></span> On-device hand tracking for Chrome and Edge</p>
-          <h1>Your hand<br>is the <em>pointer.</em></h1>
-          <p class="lede">Move with a fingertip. Click with a pinch. Drag with a fist, scroll with two fingers. AirSign turns your webcam into a mouse — and keeps every frame on your machine.</p>
+          <p class="eyebrow"><span class="live-dot"></span> On-device hand tracking <span class="eyebrow-sep">/</span> Chrome + Edge</p>
+          <h1>
+            <span class="h1-line">Your hand</span>
+            <span class="h1-line">is the <em>pointer.</em></span>
+          </h1>
+          <p class="lede">Point to move. Pinch to click. Close a fist to drag, raise two fingers to scroll. AirSign turns a webcam into a mouse — and every frame stays on your machine.</p>
 
           <div class="hero-actions">
-            <a class="btn btn-bright btn-lg" href="#playground"><span class="play-glyph" aria-hidden="true"></span> Try it live</a>
-            <a class="btn btn-glass btn-lg" href="#install">Get the extension <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn btn-signal btn-lg" href="#playground"><span class="btn-glyph" aria-hidden="true">◎</span> Try it live</a>
+            <a class="btn btn-outline btn-lg" href="#gestures">See the gesture set <span class="arrow" aria-hidden="true">→</span></a>
           </div>
-          <p class="hero-micro">No install to try <span>·</span> Camera off by default <span>·</span> Nothing uploaded</p>
 
-          <dl class="hero-metrics">
-            <div><dt>Processing</dt><dd>100% local</dd></div>
-            <div><dt>Tracking</dt><dd>~30 fps</dd></div>
-            <div><dt>Requires</dt><dd>Chrome or Edge 116+</dd></div>
+          <dl class="hero-facts">
+            <div><dt>0 B</dt><dd>uploaded, ever</dd></div>
+            <div><dt>~30</dt><dd>fps on-device</dd></div>
+            <div><dt>21</dt><dd>landmarks / frame</dd></div>
           </dl>
+
+          <p class="hero-micro">No account <span>·</span> Camera off by default <span>·</span> MIT licensed</p>
         </div>
 
-        <div class="hero-visual" aria-hidden="true">
-          <div class="hero-chip chip-local"><span class="chip-dot"></span> 0 bytes uploaded</div>
-          <div class="hero-chip chip-gesture"><span>02</span> Pinch to click</div>
-
-          <div class="browser-mock">
-            <div class="browser-bar">
-              <span class="traffic"><i></i><i></i><i></i></span>
-              <span class="address-bar"><span class="address-lock"></span> forma.studio/collection</span>
-              <span class="browser-air">
-                <span class="mini-mark"><span></span></span>
-              </span>
+        <div class="hero-visual">
+          <div class="tracker" data-hero-stage data-pose="point">
+            <div class="tracker-chrome">
+              <span class="tracker-title"><i class="live-dot"></i> AIRSIGN // TRACKER</span>
+              <span class="tracker-serial">SN 2.5.1</span>
             </div>
 
-            <div class="mock-page">
-              <div class="mock-nav">
-                <span class="mock-logo">forma<span>.</span></span>
-                <span class="mock-links">Objects&nbsp;&nbsp;&nbsp;Journal&nbsp;&nbsp;&nbsp;About</span>
-                <span class="mock-cart">Bag <b>2</b></span>
-              </div>
+            <div class="tracker-stage">
+              <span class="tracker-grid" aria-hidden="true"></span>
+              <span class="tracker-scan" aria-hidden="true"></span>
+              <span class="tracker-corner tl" aria-hidden="true"></span>
+              <span class="tracker-corner tr" aria-hidden="true"></span>
+              <span class="tracker-corner bl" aria-hidden="true"></span>
+              <span class="tracker-corner br" aria-hidden="true"></span>
 
-              <div class="mock-hero">
-                <p class="mock-kicker">Collection No. 08</p>
-                <h3>Quiet tools for<br>loud days.</h3>
-                <p class="mock-sub">Stoneware and brushed aluminium for the desk you actually use.</p>
-                <span class="mock-button">Explore the collection <b>→</b></span>
-              </div>
+              <div class="tracker-rig" id="heroField"></div>
 
-              <div class="mock-products">
-                <div class="mock-product product-a"><span class="product-art art-a"></span><span class="product-line"><b>Arc lamp</b><em>$180</em></span></div>
-                <div class="mock-product product-b"><span class="product-art art-b"></span><span class="product-line"><b>Slab tray</b><em>$64</em></span></div>
-                <div class="mock-product product-c"><span class="product-art art-c"></span><span class="product-line"><b>Onda vase</b><em>$92</em></span></div>
+              <div class="tracker-coords" aria-hidden="true">
+                <span>X <b id="heroX">0.00</b></span>
+                <span>Y <b id="heroY">0.00</b></span>
               </div>
+              <span class="tracker-status"><i></i> LOCAL</span>
 
-              <span class="mock-cursor">
-                <span class="mock-cursor-ring"></span>
-                <span class="mock-cursor-dot"></span>
-                <span class="mock-cursor-tag">CLICK</span>
-              </span>
+              <div class="tracker-pose">
+                <span class="tracker-pose-label" id="heroPoseLabel">POINT</span>
+                <span class="tracker-pose-note" id="heroPoseNote">cursor follows the index tip</span>
+              </div>
             </div>
 
-            <div class="mock-bubble">
-              <div class="mock-bubble-bar">
-                <span class="mock-bubble-brand"><span class="mini-mark"><span></span></span> AirSign</span>
-                <span class="mock-live"><i></i> LIVE</span>
-                <span class="mock-bubble-tools"><i></i><i></i></span>
-              </div>
-              <div class="mock-feed">
-                <span class="feed-grid"></span>
-                <span class="feed-glow"></span>
-                <svg class="skeleton" viewBox="0 0 320 240" role="presentation">
-                  <path d="M160 216L192 197M192 197L214 175M214 175L234 154M234 154L262 130M160 216L179 144M179 144L179 115M179 115L179 94M179 94L154 72M179 144L160 144M160 144L160 130M160 130L160 137M160 137L160 144M160 144L141 146M141 146L141 132M141 132L141 139M141 139L141 146M141 146L125 154M125 154L125 139M125 139L125 146M125 146L125 154M160 216L125 154" />
-                  <g class="joints">
-                    <circle cx="160" cy="216" r="3.5"/><circle cx="192" cy="197" r="3.5"/><circle cx="214" cy="175" r="3.5"/><circle cx="234" cy="154" r="3.5"/><circle cx="262" cy="130" r="3.5"/>
-                    <circle cx="179" cy="144" r="3.5"/><circle cx="179" cy="115" r="3.5"/><circle cx="179" cy="94" r="3.5"/><circle cx="154" cy="72" r="4.5" class="tip"/>
-                    <circle cx="160" cy="144" r="3"/><circle cx="160" cy="130" r="3"/><circle cx="160" cy="137" r="3"/><circle cx="141" cy="146" r="3"/><circle cx="141" cy="132" r="3"/><circle cx="141" cy="139" r="3"/><circle cx="125" cy="154" r="3"/><circle cx="125" cy="139" r="3"/><circle cx="125" cy="146" r="3"/>
-                  </g>
-                  <circle class="tip-pulse" cx="154" cy="72" r="10"/>
-                </svg>
-                <span class="pose-chip">PINCH</span>
-              </div>
-              <div class="mock-bubble-foot"><span>Click assist</span><span>30 fps</span></div>
+            <div class="tracker-poses" role="group" aria-label="Preview a gesture">
+              <button type="button" data-hero-pose="point" aria-pressed="true"><span class="pose-key">01</span> Point</button>
+              <button type="button" data-hero-pose="pinch" aria-pressed="false"><span class="pose-key">02</span> Pinch</button>
+              <button type="button" data-hero-pose="fist" aria-pressed="false"><span class="pose-key">03</span> Fist</button>
+              <button type="button" data-hero-pose="scroll" aria-pressed="false"><span class="pose-key">04</span> Scroll</button>
+            </div>
+
+            <div class="tracker-foot" aria-hidden="true">
+              <span>LANDMARKS 21</span>
+              <span>LATENCY ~15 MS</span>
+              <span>UPLOAD 0 B</span>
             </div>
           </div>
-
-          <div class="hero-caption">
-            <span class="caption-line"></span>
-            A camera bubble, a real cursor, and nothing leaving the page.
-          </div>
+          <p class="tracker-caption"><span class="caption-tick"></span> A cursor made of air. Press a gesture or let it cycle — every action runs on-device from 21 hand landmarks.</p>
         </div>
       </div>
     </section>
 
-    <!-- Gesture marquee ------------------------------------------------------->
-    <div class="gesture-strip" aria-hidden="true">
+    <!-- Signal strip ---------------------------------------------------------->
+    <div class="signal-strip" aria-hidden="true">
       <div class="strip-track">
-        <span>Point <i>01</i></span><b>·</b>
-        <span>Pinch <i>02</i></span><b>·</b>
-        <span>Hold <i>03</i></span><b>·</b>
-        <span>Drag <i>04</i></span><b>·</b>
-        <span>Scroll <i>05</i></span><b>·</b>
-        <span>Release <i>06</i></span><b>·</b>
-        <span>Point <i>01</i></span><b>·</b>
-        <span>Pinch <i>02</i></span><b>·</b>
-        <span>Hold <i>03</i></span><b>·</b>
-        <span>Drag <i>04</i></span><b>·</b>
-        <span>Scroll <i>05</i></span><b>·</b>
-        <span>Release <i>06</i></span><b>·</b>
+        <span class="strip-item">POINT <i>01</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">PINCH <i>02</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">FIST <i>03</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">SCROLL <i>04</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">DWELL <i>05</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">LOCAL ONLY <i>0 B</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">POINT <i>01</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">PINCH <i>02</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">FIST <i>03</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">SCROLL <i>04</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">DWELL <i>05</i></span><span class="strip-sep">◆</span>
+        <span class="strip-item">LOCAL ONLY <i>0 B</i></span><span class="strip-sep">◆</span>
       </div>
     </div>
 
     <!-- Playground ------------------------------------------------------------>
     <section id="playground" class="section playground-section">
       <div class="shell">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div>
             <p class="kicker"><span>01</span> Live playground</p>
-            <h2>Try it with your<br>own hand.</h2>
+            <h2>Try it with<br>your own hand.</h2>
           </div>
-          <p class="section-side">This is the real thing: the same gesture engine and page bridge that ship in the extension, running in this tab. Allow your camera, then point, pinch, drag and scroll across the page. No account. No install. No upload.</p>
+          <div class="section-side">
+            <p>This is not a video. The same gesture engine and page bridge that ship in the extension are running in this tab — the model loads once and every frame is processed locally.</p>
+            <p class="side-meta"><span class="live-dot"></span> REAL ENGINE · REAL CAMERA · NO UPLOAD</p>
+          </div>
         </div>
 
-        <div class="lab" id="lab">
+        <div class="lab" id="lab" data-reveal>
           <div class="lab-top">
             <div class="lab-ident">
               <span class="status-dot" id="labDot"></span>
@@ -176,8 +168,8 @@
               </div>
             </div>
             <div class="lab-metrics" aria-live="polite">
-              <div class="metric"><span>Pose</span><strong id="poseReadout">—</strong></div>
-              <div class="metric"><span>Tracking</span><strong id="fpsReadout">—</strong></div>
+              <div class="metric"><span>POSE</span><strong id="poseReadout">—</strong></div>
+              <div class="metric"><span>TRACKING</span><strong id="fpsReadout">—</strong></div>
             </div>
             <div class="lab-actions">
               <button class="btn btn-ghost btn-sm" id="pauseBtn" type="button" hidden>Pause</button>
@@ -188,7 +180,7 @@
           <div class="lab-body">
             <div class="practice-grid">
               <article class="practice p-click">
-                <div class="practice-head"><span class="practice-no">01 / Pinch</span><span class="practice-hint">thumb + index</span></div>
+                <div class="practice-head"><span class="practice-no">01 / PINCH</span><span class="practice-hint">thumb + index</span></div>
                 <button class="target" id="clickTarget" type="button" aria-label="Pinch to click this target">
                   <span class="target-rings" aria-hidden="true"><span></span><span></span><span></span></span>
                   <span class="target-core"><strong id="clickCount">0</strong><small>clicks</small></span>
@@ -197,7 +189,7 @@
               </article>
 
               <article class="practice p-light">
-                <div class="practice-head"><span class="practice-no">02 / Pinch</span><span class="practice-hint">toggle</span></div>
+                <div class="practice-head"><span class="practice-no">02 / PINCH</span><span class="practice-hint">toggle</span></div>
                 <button class="lamp" id="lightToggle" type="button" role="switch" aria-checked="false">
                   <span class="lamp-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2h5c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3Z"/></svg>
@@ -209,7 +201,7 @@
               </article>
 
               <article class="practice p-slider">
-                <div class="practice-head"><span class="practice-no">03 / Fist + drag</span><span class="practice-hint" id="sliderValue">50%</span></div>
+                <div class="practice-head"><span class="practice-no">03 / FIST + DRAG</span><span class="practice-hint" id="sliderValue">50%</span></div>
                 <div class="slider" id="slider" role="slider" tabindex="0" aria-label="Room brightness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
                   <span class="slider-track"><span class="slider-fill" id="sliderFill"></span></span>
                   <span class="slider-thumb" id="sliderThumb"><span></span></span>
@@ -218,7 +210,7 @@
               </article>
 
               <article class="practice p-stage">
-                <div class="practice-head"><span class="practice-no">04 / Fist + drag</span><span class="practice-hint">2D</span></div>
+                <div class="practice-head"><span class="practice-no">04 / FIST + DRAG</span><span class="practice-hint">2D</span></div>
                 <div class="drag-stage" id="dragStage">
                   <span class="stage-grid" aria-hidden="true"></span>
                   <span class="stage-tag" aria-hidden="true">drag zone</span>
@@ -232,7 +224,7 @@
               </article>
 
               <article class="practice p-feed">
-                <div class="practice-head"><span class="practice-no">05 / Two fingers</span><span class="practice-hint">whole page</span></div>
+                <div class="practice-head"><span class="practice-no">05 / TWO FINGERS</span><span class="practice-hint">whole page</span></div>
                 <div class="feed" id="feed" aria-label="Scroll gesture tips">
                   <div class="feed-item"><span>01</span><div><strong>Aim anywhere</strong><p>The whole showcase scrolls, not only this playground.</p></div></div>
                   <div class="feed-item"><span>02</span><div><strong>Raise two fingers</strong><p>Index and middle up, the other fingers relaxed.</p></div></div>
@@ -242,9 +234,18 @@
                 <p class="practice-caption">Try it on any section of this page — point where you want to read, then raise two fingers.</p>
               </article>
 
+              <article class="practice p-coach" data-coach>
+                <div class="practice-head"><span class="practice-no">LIVE / POSE</span><span class="practice-hint">mirror</span></div>
+                <div class="coach-view">
+                  <div class="coach-rig" id="coachRig" data-coach-rig></div>
+                  <span class="coach-off">Start the camera to mirror your pose</span>
+                </div>
+                <p class="practice-caption">This rig follows the pose label above in real time.</p>
+              </article>
+
               <article class="tuning">
                 <div class="tuning-copy">
-                  <span class="practice-no">06 / Tune</span>
+                  <span class="practice-no">06 / TUNE</span>
                   <h3>Dial it in.</h3>
                   <p>Same controls as the side panel. Changes apply live.</p>
                 </div>
@@ -279,21 +280,24 @@
 
             <div class="start-layer" id="startLayer">
               <div class="start-card">
-                <div class="cam-badge" aria-hidden="true">
-                  <span class="cam-pulse"></span>
-                  <svg viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h6A2.5 2.5 0 0 1 15 8.5v7a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 4 15.5v-7Z"/><path d="m15 10 4.2-2.4a.7.7 0 0 1 1.05.6v7.6a.7.7 0 0 1-1.05.6L15 14"/></svg>
+                <div class="start-visual" aria-hidden="true">
+                  <span class="start-visual-grid"></span>
+                  <div class="start-rig" data-start-rig></div>
+                  <span class="start-badge"><i></i> CAMERA OFF</span>
                 </div>
-                <p class="mini-label">Live playground</p>
-                <h3>Point with your hand,<br>not your mouse.</h3>
-                <p class="start-copy">Grant camera access and the practice range comes alive. The same on-device engine as the extension runs right here in this tab.</p>
-                <div class="start-error" id="startError" role="alert" hidden></div>
-                <button class="btn btn-bright btn-lg" id="startBtn" type="button"><span id="startBtnLabel">Start camera</span> <span class="arrow" aria-hidden="true">→</span></button>
-                <p class="load-note" id="loadNote" hidden>Loading the on-device hand model — about 22 MB, one time.</p>
-                <p class="privacy-line">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2"/><rect x="4.5" y="10" width="15" height="10" rx="2.5"/></svg>
-                  Nothing is recorded. Nothing leaves your device.
-                </p>
-                <noscript><p class="noscript-note">Enable JavaScript to run the live camera demo. Everything below still works as a preview.</p></noscript>
+                <div class="start-copy-wrap">
+                  <p class="mini-label">Live playground</p>
+                  <h3>Point with your hand,<br>not your mouse.</h3>
+                  <p class="start-copy">Grant camera access and the range comes alive. The model loads once — about 22 MB — then runs entirely in this tab.</p>
+                  <div class="start-error" id="startError" role="alert" hidden></div>
+                  <button class="btn btn-signal btn-lg" id="startBtn" type="button"><span id="startBtnLabel">Start camera</span> <span class="arrow" aria-hidden="true">→</span></button>
+                  <p class="load-note" id="loadNote" hidden>Loading the on-device hand model — about 22 MB, one time.</p>
+                  <p class="privacy-line">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2"/><rect x="4.5" y="10" width="15" height="10" rx="2.5"/></svg>
+                    Nothing is recorded. Nothing leaves your device.
+                  </p>
+                  <noscript><p class="noscript-note">Enable JavaScript to run the live camera demo. Everything below still works as a preview.</p></noscript>
+                </div>
               </div>
             </div>
           </div>
@@ -311,133 +315,232 @@
       </div>
     </section>
 
-    <!-- Gestures -------------------------------------------------------------->
-    <section id="gestures" class="section section-alt">
+    <!-- Gesture atlas --------------------------------------------------------->
+    <section id="gestures" class="section gesture-section">
       <div class="shell">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div>
-            <p class="kicker"><span>02</span> The gesture set</p>
+            <p class="kicker"><span>02</span> Gesture atlas</p>
             <h2>Four moves.<br>The whole web.</h2>
           </div>
-          <p class="section-side">Nothing to memorise. Every gesture mirrors something you already do with a mouse — just with a little more air in the room.</p>
+          <div class="section-side">
+            <p>Every posture below is drawn from the same 21-point skeleton the model tracks. Pick a gesture to see the hand, the active landmarks, and the movement it produces.</p>
+            <p class="side-meta"><span class="live-dot"></span> AUTO TOUR RUNS UNTIL YOU TOUCH IT</p>
+          </div>
         </div>
 
-        <div class="gesture-grid">
-          <article class="gesture-card gesture-point">
-            <div class="gesture-visual" aria-hidden="true">
-              <span class="g-num">01</span>
-              <span class="g-pointer"><span class="g-ring"></span><span class="g-ring r2"></span><span class="g-dot"></span></span>
-              <span class="g-caption">POINT</span>
-            </div>
-            <h3>Point to move</h3>
-            <p>Your index fingertip is the cursor. One Euro smoothing keeps it steady when you hold still and responsive when you move fast.</p>
-            <span class="gesture-alias">= move the mouse</span>
-          </article>
+        <div class="atlas" data-reveal>
+          <div class="atlas-tabs" role="tablist" aria-label="Gesture atlas" aria-orientation="vertical">
+            <button class="atlas-tab is-active" id="atlasTab-point" type="button" role="tab" aria-selected="true" aria-controls="atlasPanel" tabindex="0" data-gesture="point">
+              <span class="atlas-tab-no">01</span>
+              <span class="atlas-tab-body"><strong>Point</strong><small>move the cursor</small></span>
+              <span class="atlas-tab-arrow" aria-hidden="true">→</span>
+            </button>
+            <button class="atlas-tab" id="atlasTab-pinch" type="button" role="tab" aria-selected="false" aria-controls="atlasPanel" tabindex="-1" data-gesture="pinch">
+              <span class="atlas-tab-no">02</span>
+              <span class="atlas-tab-body"><strong>Pinch</strong><small>click once</small></span>
+              <span class="atlas-tab-arrow" aria-hidden="true">→</span>
+            </button>
+            <button class="atlas-tab" id="atlasTab-drag" type="button" role="tab" aria-selected="false" aria-controls="atlasPanel" tabindex="-1" data-gesture="drag">
+              <span class="atlas-tab-no">03</span>
+              <span class="atlas-tab-body"><strong>Fist</strong><small>drag and drop</small></span>
+              <span class="atlas-tab-arrow" aria-hidden="true">→</span>
+            </button>
+            <button class="atlas-tab" id="atlasTab-scroll" type="button" role="tab" aria-selected="false" aria-controls="atlasPanel" tabindex="-1" data-gesture="scroll">
+              <span class="atlas-tab-no">04</span>
+              <span class="atlas-tab-body"><strong>Two fingers</strong><small>move the page</small></span>
+              <span class="atlas-tab-arrow" aria-hidden="true">→</span>
+            </button>
+            <button class="atlas-tab" id="atlasTab-dwell" type="button" role="tab" aria-selected="false" aria-controls="atlasPanel" tabindex="-1" data-gesture="dwell">
+              <span class="atlas-tab-no">05</span>
+              <span class="atlas-tab-body"><strong>Dwell</strong><small>click without pinching</small></span>
+              <span class="atlas-tab-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
 
-          <article class="gesture-card gesture-pinch">
-            <div class="gesture-visual" aria-hidden="true">
-              <span class="g-num">02</span>
-              <span class="g-pinch"><span class="g-ball a"></span><span class="g-ball b"></span><span class="g-spark"></span></span>
-              <span class="g-caption">PINCH</span>
-            </div>
-            <h3>Pinch to click</h3>
-            <p>Touch thumb and index together. AirSign freezes your aim, clicks once, and highlights what it's about to hit before you commit.</p>
-            <span class="gesture-alias">= left click</span>
-          </article>
+          <div class="atlas-main" id="atlasPanel" role="tabpanel" aria-labelledby="atlasTab-point">
+            <div class="atlas-plate">
+              <div class="plate-head">
+                <span class="plate-code" id="atlasCode">G-01 / POINT</span>
+                <span class="plate-alias" id="atlasAlias">= MOUSE MOVE</span>
+              </div>
 
-          <article class="gesture-card gesture-fist">
-            <div class="gesture-visual" aria-hidden="true">
-              <span class="g-num">03</span>
-              <span class="g-fist"><i></i><i></i><i></i><i></i></span>
-              <span class="g-caption">FIST</span>
-            </div>
-            <h3>Fist to drag</h3>
-            <p>Close your hand over a card, a slider, or any draggable thing. Your palm becomes the grip and the cursor follows it until you let go.</p>
-            <span class="gesture-alias">= click + hold + drag</span>
-          </article>
+              <div class="plate-rig">
+                <span class="plate-grid" aria-hidden="true"></span>
+                <span class="plate-axis axis-x" aria-hidden="true">X</span>
+                <span class="plate-axis axis-y" aria-hidden="true">Y</span>
+                <div class="atlas-rig" id="atlasRig"></div>
+                <div class="finger-keys" aria-label="Active fingers">
+                  <span class="finger-key" data-atlas-finger="thumb">T<small>thumb</small></span>
+                  <span class="finger-key" data-atlas-finger="index">I<small>index</small></span>
+                  <span class="finger-key" data-atlas-finger="middle">M<small>middle</small></span>
+                  <span class="finger-key" data-atlas-finger="ring">R<small>ring</small></span>
+                  <span class="finger-key" data-atlas-finger="pinky">P<small>pinky</small></span>
+                </div>
+                <span class="plate-note">21-LANDMARK SKELETON</span>
+                <span class="plate-scale">PLATE 01 : 2</span>
+              </div>
 
-          <article class="gesture-card gesture-scroll">
-            <div class="gesture-visual" aria-hidden="true">
-              <span class="g-num">04</span>
-              <span class="g-scroll"><span class="g-arrow up">↑</span><span class="g-pages"><i></i><i></i><i></i></span><span class="g-arrow down">↓</span></span>
-              <span class="g-caption">SCROLL</span>
+              <dl class="plate-readout">
+                <div><dt>Position</dt><dd id="atlasPosition">Index extended. Palm toward the camera. Hand fully inside the frame.</dd></div>
+                <div><dt>Action</dt><dd id="atlasAction">The index fingertip becomes the pointer. Smoothing keeps it steady while you hold still.</dd></div>
+              </dl>
             </div>
-            <h3>Two fingers to scroll</h3>
-            <p>Raise your index and middle fingers, then move your hand up or down. Distance is measured in hand widths, so camera distance doesn't change your speed.</p>
-            <span class="gesture-alias">= mouse wheel</span>
-          </article>
+
+            <div class="atlas-side">
+              <div class="action-preview" id="actionPreview" data-gesture="point" aria-hidden="true">
+                <div class="ap-window">
+                  <div class="ap-bar">
+                    <span class="ap-dots"><i></i><i></i><i></i></span>
+                    <span class="ap-url">demo.page / desk</span>
+                    <span class="ap-rec"><i></i> LIVE</span>
+                  </div>
+                  <div class="ap-page">
+                    <div class="ap-card ap-card-a"><span class="ap-thumb"></span><b>Arc lamp</b><em>$180</em></div>
+                    <div class="ap-card ap-card-b"><span class="ap-thumb"></span><b>Slab tray</b><em>$64</em></div>
+                    <button class="ap-button" type="button" tabindex="-1">Add to bag</button>
+                    <span class="ap-slider"><i></i><b></b></span>
+                    <span class="ap-cursor"><span class="ap-cursor-ring"></span><span class="ap-cursor-dot"></span></span>
+                    <span class="ap-dwell-ring"></span>
+                    <span class="ap-click-pulse"></span>
+                    <span class="ap-tag"></span>
+                  </div>
+                </div>
+                <span class="ap-caption">ACTION PREVIEW <i aria-hidden="true">→</i></span>
+              </div>
+
+              <div class="atlas-steps">
+                <p class="atlas-label">HOW TO DO IT</p>
+                <ol>
+                  <li><span>1</span><p id="atlasStep1">Raise one hand with the palm toward the camera.</p></li>
+                  <li><span>2</span><p id="atlasStep2">Extend your index finger and relax the rest.</p></li>
+                  <li><span>3</span><p id="atlasStep3">Sweep your hand — the fingertip is the pointer.</p></li>
+                </ol>
+              </div>
+
+              <div class="atlas-tip">
+                <span class="tip-mark" aria-hidden="true">!</span>
+                <p id="atlasTip">Keep the other fingers loose. A tucked hand reads as a fist.</p>
+              </div>
+
+              <div class="atlas-controls">
+                <button class="icon-nav" id="atlasPrev" type="button" aria-label="Previous gesture">←</button>
+                <button class="auto-btn" id="atlasAuto" type="button" aria-pressed="true"><span>Auto tour on</span><i class="auto-dot" aria-hidden="true"></i></button>
+                <button class="icon-nav" id="atlasNext" type="button" aria-label="Next gesture">→</button>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
     </section>
 
-    <!-- How it works ---------------------------------------------------------->
-    <section id="how" class="section">
-      <div class="shell how-grid">
-        <div class="how-copy">
-          <p class="kicker"><span>03</span> Under the hood</p>
-          <h2>Fast enough to feel native.<br>Private by design.</h2>
-          <p class="how-lede">MediaPipe reads 21 landmarks per frame. AirSign turns them into a cursor and four gestures, then dispatches real pointer events to the page. Photons in, pixels out — the whole loop stays inside your browser.</p>
-
-          <ul class="privacy-points">
-            <li><span class="tick">✓</span><div><strong>No frames leave the tab</strong><p>Tracking uses WebGL or WASM locally. After the model loads, no network requests are needed.</p></div></li>
-            <li><span class="tick">✓</span><div><strong>No recording, ever</strong><p>Frames are read into a canvas and discarded. AirSign never stores an image or a landmark.</p></div></li>
-            <li><span class="tick">✓</span><div><strong>You hold the off switch</strong><p>The camera is requested only when you start, and released the moment you press Stop.</p></div></li>
-          </ul>
-
-          <a class="text-link" href="https://github.com/abhinavtie2008/AirSign#readme" target="_blank" rel="noreferrer">Read the technical README <span aria-hidden="true">→</span></a>
+    <!-- Pipeline -------------------------------------------------------------->
+    <section id="how" class="section how-section">
+      <div class="shell">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="kicker"><span>03</span> Under the hood</p>
+            <h2>Fast enough to<br>feel native.</h2>
+          </div>
+          <div class="section-side">
+            <p>MediaPipe reads 21 landmarks per frame. AirSign turns them into a cursor and four gestures, then dispatches real pointer events to the page. Photons in, pixels out — the whole loop stays inside your browser.</p>
+          </div>
         </div>
 
-        <div class="diagram">
-          <div class="diagram-head"><span>Local pipeline</span><span class="diagram-badge"><i></i> offline</span></div>
-          <ol>
-            <li>
-              <span class="diagram-icon">
+        <div class="pipeline" data-reveal>
+          <div class="pipeline-bar">
+            <span class="pipeline-title">LOCAL PIPELINE</span>
+            <span class="pipeline-badge"><i class="live-dot"></i> OFFLINE AFTER LOAD</span>
+          </div>
+
+          <div class="pipeline-track">
+            <article class="pipe-step">
+              <span class="pipe-no">01</span>
+              <span class="pipe-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h6A2.5 2.5 0 0 1 15 8.5v7a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 4 15.5v-7Z"/><path d="m15 10 4.2-2.4a.7.7 0 0 1 1.05.6v7.6a.7.7 0 0 1-1.05.6L15 14"/></svg>
               </span>
-              <div><strong>Webcam</strong><p>One hand, up to 30 frames per second</p></div>
-              <em>input</em>
-            </li>
-            <li>
-              <span class="diagram-icon">
+              <h3>Webcam</h3>
+              <p>One hand, up to 30 frames per second.</p>
+              <span class="pipe-time">INPUT</span>
+            </article>
+
+            <span class="pipe-link" aria-hidden="true"><i></i><b>~15 MS</b></span>
+
+            <article class="pipe-step">
+              <span class="pipe-no">02</span>
+              <span class="pipe-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="1.6"/><circle cx="11" cy="4.6" r="1.6"/><circle cx="16" cy="5.4" r="1.6"/><circle cx="20" cy="8" r="1.6"/><path d="m6 6 5-1.4M11 4.6l5 .8M16 5.4l4 2.6M6 6l6 7m-6-7v8m6-1 4-4.6M12 13l6 1M12 13l-5 6"/></svg>
               </span>
-              <div><strong>MediaPipe landmarks</strong><p>21 points per frame, on-device</p></div>
-              <em>~15 ms</em>
-            </li>
-            <li>
-              <span class="diagram-icon">
+              <h3>Landmarks</h3>
+              <p>21 points per frame, on-device.</p>
+              <span class="pipe-time">MEDIAPIPE · WASM / WEBGL</span>
+            </article>
+
+            <span class="pipe-link" aria-hidden="true"><i></i><b>1 MS</b></span>
+
+            <article class="pipe-step">
+              <span class="pipe-no">03</span>
+              <span class="pipe-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4l2-5 3 10 2-5h5"/></svg>
               </span>
-              <div><strong>Gesture engine</strong><p>Hysteresis, smoothing, click lock</p></div>
-              <em>1 ms</em>
-            </li>
-            <li>
-              <span class="diagram-icon">
+              <h3>Gesture engine</h3>
+              <p>Hysteresis, One Euro smoothing, click lock.</p>
+              <span class="pipe-time">4 POSES + DWELL</span>
+            </article>
+
+            <span class="pipe-link" aria-hidden="true"><i></i><b>1 FRAME</b></span>
+
+            <article class="pipe-step">
+              <span class="pipe-no">04</span>
+              <span class="pipe-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3h9A2.5 2.5 0 0 1 19 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18.5v-13Z"/><path d="M9 7h6M9 11h6M9 15h3"/></svg>
               </span>
-              <div><strong>Any page</strong><p>Real pointer and mouse events</p></div>
-              <em>1 frame</em>
-            </li>
-          </ol>
-          <div class="diagram-foot"><span class="chip-dot"></span> Nothing is sent to a server at any point.</div>
+              <h3>Any page</h3>
+              <p>Real pointer and mouse events.</p>
+              <span class="pipe-time">THE WEB</span>
+            </article>
+          </div>
+
+          <div class="pipeline-foot">
+            <span>NOTHING IS SENT TO A SERVER AT ANY POINT.</span>
+            <span class="pipeline-meter" aria-hidden="true"><i></i><i></i><i></i><b>ALL LOCAL</b></span>
+          </div>
+        </div>
+
+        <div class="privacy-points" data-reveal>
+          <div class="privacy-point">
+            <span class="tick">✓</span>
+            <div><strong>No frames leave the tab</strong><p>Tracking uses WebGL or WASM locally. After the model loads, no network requests are needed.</p></div>
+          </div>
+          <div class="privacy-point">
+            <span class="tick">✓</span>
+            <div><strong>No recording, ever</strong><p>Frames are read into a canvas and discarded. AirSign never stores an image or a landmark.</p></div>
+          </div>
+          <div class="privacy-point">
+            <span class="tick">✓</span>
+            <div><strong>You hold the off switch</strong><p>The camera is requested only when you start, and released the moment you press Stop.</p></div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Features -------------------------------------------------------------->
-    <section id="features" class="section section-alt">
+    <section id="features" class="section features-section">
       <div class="shell">
-        <div class="section-head">
+        <div class="section-head" data-reveal>
           <div>
             <p class="kicker"><span>04</span> Built in</p>
-            <h2>The details that<br>make it usable.</h2>
+            <h2>The details that<br>make it stick.</h2>
           </div>
-          <p class="section-side">Touchless control only works if it feels dependable. These are the small decisions that make AirSign feel less like a demo and more like an input device.</p>
+          <div class="section-side">
+            <p>Touchless control only works if it feels dependable. These are the small decisions that make AirSign feel less like a demo and more like an input device.</p>
+          </div>
         </div>
 
-        <div class="feature-grid">
-          <article class="feature feature-wide">
-            <div>
+        <div class="bento">
+          <article class="bento-card bento-privacy" data-reveal>
+            <div class="bento-copy">
               <span class="feature-tag">Privacy first</span>
               <h3>Your camera is not a cloud service.</h3>
               <p>No recordings, no snapshots, no frame analytics. The model ships with the extension and runs locally; the only network request is the one that loaded this page.</p>
@@ -448,7 +551,7 @@
             </div>
           </article>
 
-          <article class="feature">
+          <article class="bento-card" data-reveal>
             <span class="feature-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M15 4v16M3 9h18"/></svg>
             </span>
@@ -456,7 +559,7 @@
             <p>Keep the full control panel open, or collapse it into a draggable camera bubble that floats over any page and survives navigation.</p>
           </article>
 
-          <article class="feature">
+          <article class="bento-card" data-reveal>
             <span class="feature-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
             </span>
@@ -464,7 +567,7 @@
             <p>A pinpoint cursor with a forgiving nature. Nearby buttons get highlighted, and a near miss lands on what you actually meant.</p>
           </article>
 
-          <article class="feature">
+          <article class="bento-card" data-reveal>
             <span class="feature-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M6 8l-3 4 3 4M18 8l3 4-3 4"/></svg>
             </span>
@@ -472,23 +575,37 @@
             <p>Scroll travel is measured in hand widths, not pixels, so the speed stays the same near or far from the lens.</p>
           </article>
 
-          <article class="feature">
-            <span class="feature-icon">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/></svg>
-            </span>
-            <h3>Pause a site</h3>
-            <p>Text editors, maps and canvas apps can fight a cursor. Pause gestures on that one site and keep tracking everywhere else.</p>
+          <article class="bento-card bento-pause" id="featurePause" data-reveal>
+            <span class="feature-tag">Per-site pause</span>
+            <h3>Some pages fight a cursor.</h3>
+            <p>Text editors, maps and canvas apps can fight a pointer. Pause gestures on that one site and keep tracking everywhere else.</p>
+            <div class="pause-demo">
+              <div class="pause-site">
+                <span class="pause-site-icon" aria-hidden="true">M</span>
+                <span class="pause-site-name">maps.example</span>
+                <span class="pause-state" id="sitePauseState">Active everywhere</span>
+              </div>
+              <button class="setting-toggle" id="sitePauseToggle" type="button" role="switch" aria-checked="false">
+                <span><strong>Pause on this site</strong><small>tracking stays on elsewhere</small></span>
+                <span class="switch" aria-hidden="true"><span></span></span>
+              </button>
+            </div>
           </article>
 
-          <article class="feature">
+          <article class="bento-card" data-reveal>
             <span class="feature-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="2.2"/><circle cx="15" cy="12" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg>
             </span>
             <h3>Yours to tune</h3>
             <p>Reach, smoothing, mirror, dwell and pinch calibration. If the default feels off, the side panel can calibrate to your hand.</p>
+            <div class="tune-visual" aria-hidden="true">
+              <div class="tune-row"><span>Reach</span><i><b class="tune-v1"></b></i><em>Balanced</em></div>
+              <div class="tune-row"><span>Smoothing</span><i><b class="tune-v2"></b></i><em>35</em></div>
+              <div class="tune-row"><span>Dwell</span><i><b class="tune-v3"></b></i><em>Off</em></div>
+            </div>
           </article>
 
-          <article class="feature">
+          <article class="bento-card" data-reveal>
             <span class="feature-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.8 5.8 3.8 9S14.5 18.2 12 21c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3Z"/></svg>
             </span>
@@ -500,60 +617,93 @@
     </section>
 
     <!-- Install --------------------------------------------------------------->
-    <section id="install" class="section">
-      <div class="shell install-grid">
-        <div class="install-copy">
-          <p class="kicker"><span>05</span> Install</p>
-          <h2>One download.<br>Then it lives in your browser.</h2>
-          <p class="install-lede">AirSign 2.5.1 is a local Manifest V3 extension. The hand-tracking model is bundled, so the installer is big but the setup is small: unzip, load once, point forever.</p>
-
-          <ol class="steps">
-            <li><span class="step-no">01</span><div><strong>Download the build</strong><p>Grab <code>AirSign-v2.5.1.zip</code> from the latest GitHub release and unzip it somewhere you'll remember.</p></div></li>
-            <li><span class="step-no">02</span><div><strong>Open your extensions</strong><p>Visit <code>chrome://extensions</code> in Chrome or <code>edge://extensions</code> in Edge, and switch on <strong>Developer mode</strong> in the top right.</p></div></li>
-            <li><span class="step-no">03</span><div><strong>Load unpacked</strong><p>Choose <strong>Load unpacked</strong> and select the unzipped folder — the one containing <code>manifest.json</code>.</p></div></li>
-            <li><span class="step-no">04</span><div><strong>Point at something</strong><p>Click the AirSign icon, allow camera access, and start with your hand. Minimize the panel into a bubble whenever you want the screen back.</p></div></li>
-          </ol>
-
-          <p class="install-note">On Edge, skip the steps above — AirSign is published on <a href="https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe" target="_blank" rel="noreferrer">Microsoft Edge Add-ons</a>. Chrome or Edge 116+ on desktop recommended either way. Camera permission is requested on first run and can be revoked at any time.</p>
+    <section id="install" class="section install-section">
+      <div class="shell">
+        <div class="section-head" data-reveal>
+          <div>
+            <p class="kicker"><span>05</span> Install</p>
+            <h2>One download.<br>Then it lives in your browser.</h2>
+          </div>
+          <div class="section-side">
+            <p>AirSign 2.5.1 is a local Manifest V3 extension. The hand-tracking model is bundled, so the installer is big but the setup is small: install once, point forever.</p>
+          </div>
         </div>
 
-        <aside class="download-card">
-          <div class="download-top">
-            <span class="brand-mark brand-mark-lg" aria-hidden="true"><span></span></span>
-            <span class="version-pill">v2.5.1</span>
+        <div class="install-shell" data-reveal>
+          <div class="install-card">
+            <div class="install-card-top">
+              <div class="install-brand">
+                <span class="brand-mark brand-mark-lg" aria-hidden="true">
+                  <svg viewBox="0 0 32 32"><path d="M13 27c-2.6 0-4.4-1.5-5.4-4.2l-2.4-6.3c-.4-1 .1-2.1 1.1-2.5 1-.4 2 .1 2.5 1l1.6 3.1V8.2c0-1.1.9-2 2-2s2 .9 2 2v5.3h.7V5.6c0-1.1.9-2 2-2s2 .9 2 2v7.9h.7V7.4c0-1.1.9-2 2-2s2 .9 2 2v6.1h.7v-3c0-1.1.9-2 2-2s2 .9 2 2v8.3c0 5.1-3.2 8.2-8.2 8.2H13Z"/><circle cx="9" cy="8.5" r="3.4"/></svg>
+                </span>
+                <div>
+                  <strong>AirSign</strong>
+                  <span>Touchless input for the web</span>
+                </div>
+              </div>
+              <span class="version-pill">v2.5.1</span>
+            </div>
+
+            <div class="install-tabs" role="tablist" aria-label="Install AirSign">
+              <button class="install-tab is-active" id="installTab-edge" type="button" role="tab" aria-selected="true" aria-controls="installPanel-edge" data-install-tab="edge">Microsoft Edge <span class="tab-flag">STORE</span></button>
+              <button class="install-tab" id="installTab-chrome" type="button" role="tab" aria-selected="false" aria-controls="installPanel-chrome" data-install-tab="chrome" tabindex="-1">Chrome <span class="tab-flag">UNPACKED</span></button>
+            </div>
+
+            <div class="install-panel is-active" id="installPanel-edge" data-install-panel="edge" role="tabpanel" aria-labelledby="installTab-edge">
+              <h3>One click from Edge Add-ons.</h3>
+              <p>AirSign 2.5.1 is published on Microsoft Edge Add-ons. Store builds install like any other extension and update themselves.</p>
+              <a class="btn btn-signal btn-lg btn-block" href="https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe" target="_blank" rel="noreferrer">Add to Microsoft Edge <span class="arrow" aria-hidden="true">→</span></a>
+              <p class="install-fineprint">If the listing is still awaiting review, the Chrome tab has the current GitHub release for a manual install.</p>
+            </div>
+
+            <div class="install-panel" id="installPanel-chrome" data-install-panel="chrome" role="tabpanel" aria-labelledby="installTab-chrome" hidden>
+              <ol class="steps">
+                <li><span class="step-no">01</span><div><strong>Download the build</strong><p>Grab <code>AirSign-v2.5.1.zip</code> from the release and unzip it somewhere you’ll remember.</p></div></li>
+                <li><span class="step-no">02</span><div><strong>Open extensions</strong><p>Visit <code>chrome://extensions</code> and switch on <strong>Developer mode</strong> in the top right.</p></div></li>
+                <li><span class="step-no">03</span><div><strong>Load unpacked</strong><p>Choose <strong>Load unpacked</strong> and select the unzipped folder — the one containing <code>manifest.json</code>.</p></div></li>
+                <li><span class="step-no">04</span><div><strong>Point at something</strong><p>Click the AirSign icon, allow camera access, and raise a hand. Minimize the panel into a bubble whenever you want the screen back.</p></div></li>
+              </ol>
+              <a class="btn btn-outline btn-block" href="https://github.com/abhinavtie2008/AirSign/releases/latest" target="_blank" rel="noreferrer">Download the ZIP for Chrome <span class="arrow" aria-hidden="true">→</span></a>
+            </div>
+
+            <dl class="install-meta">
+              <div><dt>VERSION</dt><dd>2.5.1</dd></div>
+              <div><dt>LICENSE</dt><dd>MIT</dd></div>
+              <div><dt>TRACKING</dt><dd>On-device</dd></div>
+              <div><dt>NETWORK</dt><dd>None after load</dd></div>
+            </dl>
           </div>
-          <h3>AirSign for Chrome and Edge</h3>
-          <p>The side panel, the camera bubble, and the full gesture set — with the model included for offline tracking.</p>
-          <a class="btn btn-bright btn-lg btn-block" href="https://microsoftedge.microsoft.com/addons/detail/airsign-%E2%80%94-touchless-brows/efeefgmnlcddffpkhlidnopmfjbndehe" target="_blank" rel="noreferrer">Add to Microsoft Edge <span class="arrow" aria-hidden="true">→</span></a>
-          <a class="btn btn-glass btn-block" href="https://github.com/abhinavtie2008/AirSign/releases/latest" target="_blank" rel="noreferrer" style="padding-top: 10px; padding-bottom: 10px;">Download the ZIP for Chrome</a>
-          <a class="btn btn-glass btn-block" href="https://github.com/abhinavtie2008/AirSign" target="_blank" rel="noreferrer" style="padding-top: 10px; padding-bottom: 10px;">View source on GitHub</a>
 
-          <dl class="download-meta">
-            <div><dt>Version</dt><dd>2.5.1</dd></div>
-            <div><dt>Locale</dt><dd>Runs offline</dd></div>
-            <div><dt>License</dt><dd>MIT</dd></div>
-            <div><dt>Tracking</dt><dd>On-device</dd></div>
-          </dl>
-
-          <p class="download-note"><span class="chip-dot"></span> Loading unpacked takes about a minute. Store builds update themselves; unpacked installs update by hand.</p>
-        </aside>
+          <aside class="install-aside">
+            <p class="install-note-label">BEFORE YOU START</p>
+            <ul class="install-notes">
+              <li><span>01</span><p>Desktop Chrome or Edge 116+.</p></li>
+              <li><span>02</span><p>A webcam and decent front lighting.</p></li>
+              <li><span>03</span><p>Camera permission is requested only when you start.</p></li>
+              <li><span>04</span><p>Unpacked installs update by hand; store builds update themselves.</p></li>
+            </ul>
+            <a class="text-link" href="https://github.com/abhinavtie2008/AirSign#readme" target="_blank" rel="noreferrer">Read the technical README <span aria-hidden="true">→</span></a>
+            <a class="text-link" href="https://github.com/abhinavtie2008/AirSign/releases" target="_blank" rel="noreferrer">All releases <span aria-hidden="true">→</span></a>
+            <p class="install-aside-note">The model is bundled with the extension. Expect a larger download, then no network requests for tracking.</p>
+          </aside>
+        </div>
       </div>
     </section>
 
     <!-- FAQ ------------------------------------------------------------------->
-    <section id="faq" class="section section-alt">
+    <section id="faq" class="section faq-section">
       <div class="shell faq-grid">
-        <div class="faq-intro">
+        <div class="faq-intro" data-reveal>
           <p class="kicker"><span>06</span> Questions</p>
-          <h2>Good to know.</h2>
+          <h2>Good<br>to know.</h2>
           <p>Still curious? The README has the architecture, the calibration details, and every known limitation.</p>
           <a class="text-link" href="https://github.com/abhinavtie2008/AirSign#readme" target="_blank" rel="noreferrer">Open the README <span aria-hidden="true">→</span></a>
         </div>
 
-        <div class="faq-list">
+        <div class="faq-list" data-reveal>
           <details>
             <summary>Is my camera feed uploaded anywhere?<span aria-hidden="true">+</span></summary>
-            <p>No. Both the demo and the extension run MediaPipe's hand model locally using WebGL or WASM. Frames are drawn to a canvas, analysed, and immediately discarded. There is no image upload, no recording buffer, and no analytics on video.</p>
+            <p>No. Both the demo and the extension run MediaPipe’s hand model locally using WebGL or WASM. Frames are drawn to a canvas, analysed, and immediately discarded. There is no image upload, no recording buffer, and no analytics on video.</p>
           </details>
           <details>
             <summary>Do I need to install anything for the playground?</summary>
@@ -564,12 +714,16 @@
             <p>The extension targets Chrome and Edge 116+. The demo works in current Chrome, Edge, and Firefox where camera access and WebAssembly are available; desktop is strongly recommended because hand tracking needs a steady camera and a reasonably large screen.</p>
           </details>
           <details>
-            <summary>Why isn't my hand being detected?</summary>
+            <summary>Why isn’t my hand being detected?</summary>
             <p>Most misses are lighting or framing. Face a light source, keep your hand fully inside the camera view, and use one hand. Glasses, dark sleeves, and bright windows behind you can all make landmarks less stable. Try the Compact reach preset if you run out of room.</p>
           </details>
           <details>
             <summary>Does it work on every website?</summary>
             <p>On ordinary http and https pages, yes. Browsers block extensions from injecting scripts into browser-internal pages such as <code>chrome://settings</code>, the Chrome Web Store, and some PDF viewers. AirSign also needs the page to use standard pointer events, which covers the vast majority of the web.</p>
+          </details>
+          <details>
+            <summary>Why would I pause a site?</summary>
+            <p>Some pages have their own cursor logic — code editors, map canvases, drawing tools, and games. A pause on that origin stops AirSign’s pointer events there while tracking keeps working on every other site. The pause is remembered per origin.</p>
           </details>
           <details>
             <summary>How do I stop the camera?</summary>
@@ -589,11 +743,11 @@
         <div class="privacy-lock" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M7 10V8a5 5 0 0 1 10 0v2"/><rect x="4.5" y="10" width="15" height="10" rx="2.5"/><path d="M12 14v2.5"/></svg>
         </div>
-        <div>
+        <div class="privacy-band-copy">
           <h2>Your camera is not a cloud service.</h2>
-          <p>AirSign exists to make browsing easier, not to collect anything. There is no account, no telemetry, and no server that ever sees your hand. The model is in the box; your camera feed stays in the tab.</p>
+          <p>AirSign exists to make browsing easier, not to collect anything. No account, no telemetry, no server that ever sees your hand. The model is in the box; your camera feed stays in the tab.</p>
         </div>
-        <a class="btn btn-glass" href="#playground" style="padding: 10px;">Try it for yourself <span class="arrow" aria-hidden="true">↑</span></a>
+        <a class="btn btn-ink" href="#playground">Try it for yourself <span class="arrow" aria-hidden="true">↑</span></a>
       </div>
     </section>
   </main>
@@ -602,11 +756,17 @@
     <div class="shell footer-top">
       <div class="footer-brand">
         <a class="brand" href="#top" aria-label="AirSign home">
-          <span class="brand-mark" aria-hidden="true"><span></span></span>
-          <span class="brand-name">AirSign</span>
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32"><path d="M13 27c-2.6 0-4.4-1.5-5.4-4.2l-2.4-6.3c-.4-1 .1-2.1 1.1-2.5 1-.4 2 .1 2.5 1l1.6 3.1V8.2c0-1.1.9-2 2-2s2 .9 2 2v5.3h.7V5.6c0-1.1.9-2 2-2s2 .9 2 2v7.9h.7V7.4c0-1.1.9-2 2-2s2 .9 2 2v6.1h.7v-3c0-1.1.9-2 2-2s2 .9 2 2v8.3c0 5.1-3.2 8.2-8.2 8.2H13Z"/><circle cx="9" cy="8.5" r="3.4"/></svg>
+          </span>
+          <span class="brand-type">
+            <span class="brand-name">AirSign</span>
+            <span class="brand-sub">touchless input</span>
+          </span>
         </a>
         <p>Touchless browsing that stays on your machine.</p>
       </div>
+
       <div class="footer-cols">
         <div>
           <h4>Product</h4>
@@ -625,6 +785,7 @@
         </div>
       </div>
     </div>
+
     <div class="shell footer-bottom">
       <span>© 2026 AirSign · MIT licensed</span>
       <span class="footer-built">Built with MediaPipe · Runs locally · Made for Chrome and Edge</span>
@@ -659,5 +820,6 @@
 
   <script src="./content.js"></script>
   <script type="module" src="./demo.js"></script>
+  <script type="module" src="./site.js"></script>
 </body>
 </html>
