@@ -848,6 +848,44 @@ async function cameraPermissionState() {
   }
 }
 
+async function acquireCameraStream() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+      audio: false
+    });
+  } catch (error) {
+    if (error && error.name === 'NotAllowedError') {
+      const permissionError = new AirSignError('Your browser did not grant camera access from the side panel.');
+      permissionError.code = 'CAMERA_PROMPT';
+      throw permissionError;
+    }
+    if (error && error.name === 'NotFoundError') {
+      const missing = new AirSignError('No camera was found on this device.');
+      missing.transient = true;
+      throw missing;
+    }
+    if (error && error.name === 'NotReadableError') {
+      const busy = new AirSignError('The camera is busy in another app. Close it there and try again.');
+      busy.transient = true;
+      throw busy;
+    }
+    const failed = new AirSignError(`Could not open the camera (${explain(error)}).`);
+    failed.transient = Boolean(error && error.name === 'AbortError');
+    throw failed;
+  }
+
+  try {
+    video.srcObject = stream;
+    await video.play();
+  } catch (error) {
+    stopStream();
+    const failed = new AirSignError(`The camera started but could not display a preview (${explain(error)}).`);
+    failed.transient = true;
+    throw failed;
+  }
+}
+
 async function openCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     throw new AirSignError('This browser context has no camera API. Update your browser and reload the extension.');
@@ -863,32 +901,19 @@ async function openCamera() {
     throw error;
   }
 
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
-      audio: false
-    });
-  } catch (error) {
-    if (error && error.name === 'NotAllowedError') {
-      const permissionError = new AirSignError('Your browser did not grant camera access from the side panel.');
-      permissionError.code = 'CAMERA_PROMPT';
-      throw permissionError;
+  // The camera can stay busy for a moment after the bubble or another stream
+  // releases it, so retry fast transient failures for a few seconds before
+  // reporting them.
+  const started = performance.now();
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  for (;;) {
+    try {
+      await acquireCameraStream();
+      break;
+    } catch (error) {
+      if (!error.transient || performance.now() - started > 8000) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 250));
     }
-    if (error && error.name === 'NotFoundError') {
-      throw new AirSignError('No camera was found on this device.');
-    }
-    if (error && error.name === 'NotReadableError') {
-      throw new AirSignError('The camera is busy in another app. Close it there and try again.');
-    }
-    throw new AirSignError(`Could not open the camera (${explain(error)}).`);
-  }
-
-  try {
-    video.srcObject = stream;
-    await video.play();
-  } catch (error) {
-    stopStream();
-    throw new AirSignError(`The camera started but could not display a preview (${explain(error)}).`);
   }
 
   preview.width = 640;

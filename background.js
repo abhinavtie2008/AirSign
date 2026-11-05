@@ -10,6 +10,8 @@ const SANDBOX_PATH = 'sandbox.html';
 let cachedBubble;
 let pausedSites = new Set();
 let pausedRevision = 0;
+let bubblePauseTimer = 0;
+let bubbleVisibility = 0;
 
 function configureSidePanel() {
   chrome.sidePanel
@@ -208,6 +210,8 @@ async function startOffscreen(settings) {
 }
 
 async function stopOffscreen() {
+  clearTimeout(bubblePauseTimer);
+  bubblePauseTimer = 0;
   if (!(await hasOffscreen())) return;
   try {
     await chrome.runtime.sendMessage({ type: 'AIRSIGN_OFFSCREEN_STOP' });
@@ -444,6 +448,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === 'AIRSIGN_BUBBLE_VISIBILITY') {
+    const revision = (bubbleVisibility += 1);
     (async () => {
       const state = await getBubble();
       if (!state) {
@@ -452,15 +457,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       try {
         if (message.visible) {
+          clearTimeout(bubblePauseTimer);
+          bubblePauseTimer = 0;
           await ensureOffscreen();
-          const reply = await chrome.runtime.sendMessage({ type: 'AIRSIGN_OFFSCREEN_RESUME' });
-          setBadge(reply && reply.ok ? 'ON' : 'II');
+          let reply = null;
+          for (let attempt = 0; attempt < 3; attempt += 1) {
+            reply = await chrome.runtime.sendMessage({ type: 'AIRSIGN_OFFSCREEN_RESUME' });
+            if (!reply || !reply.ok || !reply.paused) break;
+            // A pause can land while the camera is reopening; retry unless the
+            // tab hid again in the meantime.
+            if (revision !== bubbleVisibility) break;
+            await new Promise((resolve) => setTimeout(resolve, 250));
+          }
+          setBadge(reply && reply.ok && !reply.paused ? 'ON' : 'II');
           if (reply && !reply.ok) {
             forwardStatus({ state: 'error', message: reply.error || 'The camera could not resume.' });
           }
         } else {
-          await chrome.runtime.sendMessage({ type: 'AIRSIGN_OFFSCREEN_PAUSE' }).catch(() => {});
-          setBadge('II');
+          // Navigating hides the old page a moment before the new one shows;
+          // pausing immediately would stop the camera the successor needs.
+          clearTimeout(bubblePauseTimer);
+          const senderUrl = sender.url || state.url;
+          bubblePauseTimer = setTimeout(async () => {
+            bubblePauseTimer = 0;
+            const latest = await getBubble();
+            if (!latest || latest.tabId !== state.tabId || latest.url !== senderUrl) return;
+            if (revision !== bubbleVisibility) return;
+            try {
+              await chrome.runtime.sendMessage({ type: 'AIRSIGN_OFFSCREEN_PAUSE' });
+            } catch (_) {}
+            setBadge('II');
+          }, 1000);
         }
       } catch (_) {}
       sendResponse({ ok: true });

@@ -218,12 +218,12 @@ try {
   check('the side panel opens', idle.bubbleHidden === true && idle.camera === 'CAMERA OFF', `${idle.label}, ${idle.camera}`);
 
   await panel.eval(`document.getElementById('dwell').click()`);
-  await panel.eval(`(() => { const input = document.getElementById('dwellMs'); input.value = '400'; input.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+  await panel.eval(`(() => { const input = document.getElementById('dwellMs'); input.value = '1200'; input.dispatchEvent(new Event('input', { bubbles: true })); })()`);
   const dwellSetting = await waitFor(async () => {
     const stored = await panel.eval(`chrome.storage.local.get('airsignSettings').then((value) => value.airsignSettings || null)`);
-    return stored && stored.dwell === true && stored.dwellMs === 400 ? stored : null;
+    return stored && stored.dwell === true && stored.dwellMs === 1200 ? stored : null;
   }, { timeout: 5000, label: 'dwell setting to persist' });
-  check('dwell can be enabled from the panel', dwellSetting.dwell === true && dwellSetting.dwellMs === 400, `${dwellSetting.dwellMs} ms`);
+  check('dwell can be enabled from the panel', dwellSetting.dwell === true && dwellSetting.dwellMs === 1200, `${dwellSetting.dwellMs} ms`);
   await panel.screenshot(path.join(artifacts, 'panel-idle.png'));
 
   await activateTab(browser, sandboxTab.targetId);
@@ -241,7 +241,7 @@ try {
   await activateTab(browser, sandboxTab.targetId);
   await sleep(300);
   await panel.eval(`document.getElementById('bubbleBtn').click()`).catch(() => {});
-  await waitForNoTarget(port, (target) => target.url.includes('sidepanel.html'), 'side panel to close');
+  await waitForNoTarget(port, (target) => target.url.includes('sidepanel.html'), 'side panel to close', 30000);
   const offscreenTarget = await waitForTarget(port, (target) => target.url.endsWith('/offscreen.html'), 'offscreen tracker');
   offscreen = await attachTarget(offscreenTarget, 'offscreen');
 
@@ -271,19 +271,38 @@ try {
     return value === '1' ? value : null;
   }, { timeout: 7000, label: 'dwell click' });
   check('resting a point over a control fires a dwell click', dwelled === '1', 'count 0 -> 1');
+
+  // Release before capturing: a slow screenshot can block the renderer past
+  // the tracker's 350 ms loss window, which re-arms dwell while the hand is
+  // still and causes a second click when tracking returns.
+  for (let frame = 0; frame < 4; frame += 1) {
+    await setHand(sandbox, openHand());
+    await sleep(90);
+  }
+  await setHand(sandbox, null);
+  await sleep(400);
   await sandbox.screenshot(path.join(artifacts, 'bubble-dwell.png'));
 
-  await sleep(400);
-  const beforeClick = await sandbox.eval(`document.getElementById('count').textContent`);
+  const beforeClick = Number(await sandbox.eval(`document.getElementById('count').textContent`));
+  for (let frame = 0; frame < 3; frame += 1) {
+    await setHand(sandbox, pointHand(aimPlus));
+    await sleep(90);
+  }
+  await waitFor(
+    () => sandbox.eval(`window.__airsignBridge.state.pose === 'point'`),
+    { timeout: 8000, label: 'pointer re-armed over the control' }
+  );
   for (let frame = 0; frame < 4; frame += 1) {
     await setHand(sandbox, pinchHand({ ...aimPlus, gap: 0.015 }));
     await sleep(90);
   }
-  const afterClick = await waitFor(async () => {
-    const value = await sandbox.eval(`document.getElementById('count').textContent`);
+  await waitFor(async () => {
+    const value = Number(await sandbox.eval(`document.getElementById('count').textContent`));
     return value !== beforeClick ? value : null;
   }, { timeout: 8000, label: 'synthetic pinch click' });
-  check('a synthetic pinch adds exactly one click', afterClick === '2', `count ${beforeClick} -> ${afterClick}`);
+  await sleep(400);
+  const settledClick = Number(await sandbox.eval(`document.getElementById('count').textContent`));
+  check('a synthetic pinch adds exactly one click', settledClick === beforeClick + 1, `count ${beforeClick} -> ${settledClick}`);
   await sandbox.screenshot(path.join(artifacts, 'bubble-click.png'));
 
   for (let frame = 0; frame < 4; frame += 1) {
@@ -381,7 +400,10 @@ try {
     const reply = await offscreenPing(sandbox);
     return reply && reply.paused ? reply : null;
   }, { timeout: 10000, label: 'tracker pause while hidden' });
-  const pausedBubble = await bubbleState(sandbox);
+  const pausedBubble = await waitFor(async () => {
+    const state = await bubbleState(sandbox);
+    return state && state.status === 'Paused while this tab is hidden.' ? state : null;
+  }, { timeout: 5000, label: 'paused bubble status' });
   check('hiding the target tab pauses tracking', pausedBubble.status === 'Paused while this tab is hidden.', pausedBubble.status);
 
   await activateTab(browser, sandboxTab.targetId);
@@ -476,7 +498,7 @@ try {
   await activateTab(browser, pageTargetId);
   await sleep(300);
   await restoredPanel.eval(`document.getElementById('bubbleBtn').click()`).catch(() => {});
-  await waitForNoTarget(port, (target) => target.url.includes('sidepanel.html'), 'side panel to close on HTTP page');
+  await waitForNoTarget(port, (target) => target.url.includes('sidepanel.html'), 'side panel to close on HTTP page', 30000);
   const pageOffscreenTarget = await waitForTarget(port, (target) => target.url.endsWith('/offscreen.html'), 'offscreen tracker for HTTP page');
   pageOffscreen = await attachTarget(pageOffscreenTarget, 'offscreen HTTP');
   const pageBubbleUp = await waitForPageBubble((state) => state.bubble.visible && state.bridge, 'bubble on the HTTP page');

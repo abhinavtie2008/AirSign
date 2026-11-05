@@ -25,6 +25,8 @@
   let previewBusy = false;
   let running = false;
   let paused = false;
+  let resuming = null;
+  let resumeToken = 0;
   let testHand = null;
   let lastPose = 'none';
   let lastVideoTs = 0;
@@ -166,6 +168,12 @@
     }, 'image/jpeg', 0.62);
   }
 
+  function cameraError(message, retryable = false) {
+    const error = new Error(message);
+    error.retryable = retryable;
+    return error;
+  }
+
   async function openCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       throw new Error('This browser context has no camera API.');
@@ -177,15 +185,18 @@
       });
     } catch (error) {
       if (error && error.name === 'NotAllowedError') {
-        throw new Error('Camera access was not granted for the background tracker.');
+        throw cameraError('Camera access was not granted for the background tracker.');
       }
       if (error && error.name === 'NotFoundError') {
-        throw new Error('No camera was found on this device.');
+        throw cameraError('No camera was found on this device.', true);
       }
       if (error && error.name === 'NotReadableError') {
-        throw new Error('The camera is busy in another app.');
+        throw cameraError('The camera is busy in another app.', true);
       }
-      throw new Error(`Could not open the camera (${explain(error)}).`);
+      if (error && error.name === 'AbortError') {
+        throw cameraError(`Could not open the camera (${explain(error)}).`, true);
+      }
+      throw cameraError(`Could not open the camera (${explain(error)}).`);
     }
 
     video.srcObject = stream;
@@ -194,7 +205,26 @@
       await video.play();
     } catch (error) {
       stopStream();
-      throw new Error(`The camera started but could not be read (${explain(error)}).`);
+      throw cameraError(`The camera started but could not be read (${explain(error)}).`, true);
+    }
+  }
+
+  // The device can take a moment to free up after the panel or a previous
+  // stream releases it (minimize, navigation, tab switch). Retry fast
+  // transient failures for a few seconds; a slow failure means it is gone.
+  async function openCameraWithRetry() {
+    const started = performance.now();
+    // Let a stream that was just stopped (panel handoff, pause) release the
+    // device before asking for it again.
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    for (;;) {
+      try {
+        await openCamera();
+        return;
+      } catch (error) {
+        if (!error.retryable || performance.now() - started > 8000) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
     }
   }
 
@@ -329,7 +359,7 @@
     }
     engine.reset();
 
-    if (!stream) await openCamera();
+    if (!stream) await openCameraWithRetry();
     if (!landmarker) landmarker = await createLandmarker();
 
     running = true;
@@ -359,6 +389,7 @@
   }
 
   function pause() {
+    resumeToken += 1;
     if (!running) return { ok: true, paused: false };
     paused = true;
     stopTimer();
@@ -369,15 +400,30 @@
 
   async function resume() {
     if (!running || !paused) return { ok: true, paused: false };
-    await openCamera();
-    paused = false;
-    lastDetectAt = 0;
-    lastPreviewAt = 0;
-    lastSentHand = false;
-    stopTimer();
-    timer = setInterval(tick, 33);
-    reportStatus('live');
-    return { ok: true, paused: false };
+    // Duplicate visibility messages would otherwise open the camera twice at
+    // once and the two streams starve each other.
+    if (resuming) return resuming;
+    const token = ++resumeToken;
+    resuming = (async () => {
+      try {
+        await openCameraWithRetry();
+        if (!running || !paused || token !== resumeToken) {
+          stopStream();
+          return { ok: true, paused: true };
+        }
+        paused = false;
+        lastDetectAt = 0;
+        lastPreviewAt = 0;
+        lastSentHand = false;
+        stopTimer();
+        timer = setInterval(tick, 33);
+        reportStatus('live');
+        return { ok: true, paused: false };
+      } finally {
+        resuming = null;
+      }
+    })();
+    return resuming;
   }
 
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
