@@ -50,3 +50,29 @@ jobs:
             dist/*.sha256
           if-no-files-found: error
           retention-days: 30
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run the extension E2E suite
+        run: npm run test:e2e
+
+      - name: Upload E2E screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-artifacts
+          path: tests/e2e/artifacts
+          if-no-files-found: ignore
+          retention-days: 7

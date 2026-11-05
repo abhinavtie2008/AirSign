@@ -167,6 +167,7 @@
 
   let mounted = false;
   let visible = false;
+  let paused = false;
   let gotPreview = false;
   let decoding = false;
   let queuedPreview = null;
@@ -239,6 +240,7 @@
     mount();
     if (!visible) {
       visible = true;
+      paused = false;
       host.style.display = 'block';
       gotPreview = false;
       setPose('none');
@@ -276,7 +278,7 @@
   }
 
   function drawPreview(dataUrl) {
-    if (!dataUrl) return;
+    if (!dataUrl || paused) return;
     if (decoding) {
       queuedPreview = dataUrl;
       return;
@@ -285,7 +287,8 @@
     decodePreview(dataUrl)
       .then((bitmap) => {
         if (!bitmap) return;
-        if (visible) {
+        // A preview forwarded just before a pause can decode after it lands.
+        if (visible && !paused) {
           ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
           if (!gotPreview) {
             gotPreview = true;
@@ -308,12 +311,15 @@
 
   function applyTrackerStatus(state, message) {
     if (state === 'error') {
+      paused = false;
       setLive(false);
       setStatus(message || 'The camera could not start.', 'error');
     } else if (state === 'paused') {
+      paused = true;
       setLive(false, true);
       setStatus(message || 'Paused while this tab is hidden.');
     } else if (state === 'live') {
+      paused = false;
       setLive(true);
       if (gotPreview) setStatus('');
     }
@@ -456,7 +462,12 @@
 
     try {
       const reply = await send({ type: 'AIRSIGN_BUBBLE_HELLO' });
-      if (reply && reply.show) show();
+      if (reply && reply.show) {
+        show();
+        // A navigation can deliver the paused status before this bubble is
+        // visible; the handshake carries it so the race cannot strand us LIVE.
+        if (reply.paused) applyTrackerStatus('paused', reply.message);
+      }
     } catch (_) {}
   })();
 
