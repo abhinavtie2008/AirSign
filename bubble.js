@@ -456,7 +456,12 @@
 
     try {
       const reply = await send({ type: 'AIRSIGN_BUBBLE_HELLO' });
-      if (reply && reply.show) show();
+      if (reply && reply.show) {
+        show();
+        // A navigation can deliver the paused status before this bubble is
+        // visible; the handshake carries it so the race cannot strand us LIVE.
+        if (reply.paused) applyTrackerStatus('paused', reply.message);
+      }
     } catch (_) {}
   })();
 

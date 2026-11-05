@@ -254,8 +254,10 @@ async function forwardFrame(payload) {
 }
 
 async function forwardPreview(message) {
+  await pausedReady;
   const state = await getBubble();
   if (!state) return;
+  if (state.paused || (state.kind === 'web' && isPausedUrl(state.url))) return;
   sendToPage(state, {
     type: 'AIRSIGN_BUBBLE_PREVIEW',
     dataUrl: message.dataUrl,
@@ -411,7 +413,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const show = fromSandbox
         ? state.kind === 'sandbox'
         : Boolean(sender.tab && sender.tab.id === state.tabId);
-      sendResponse({ show, version: VERSION });
+      const paused = state.kind === 'web' && (state.paused || isPausedUrl(state.url));
+      sendResponse({
+        show,
+        version: VERSION,
+        paused,
+        message: paused ? pausedStatusMessage(state.url) : ''
+      });
     })();
     return true;
   }

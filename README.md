@@ -169,7 +169,7 @@ lib/one-euro.mjs       One Euro smoothing filter (unit tested)
 permission.html/.js    One-time camera permission tab
 sandbox.html/.js       Built-in gesture test page
 vendor/                Local MediaPipe HandLandmarker model and WASM runtime
-tests/                 Node unit tests and synthetic landmark fixtures
+tests/                 Node unit tests, synthetic landmarks, and the E2E suite
 icons/                 Extension icons
 ```
 
@@ -206,7 +206,15 @@ Syntax check all runtime files:
 npm run check
 ```
 
-The automated suite covers the gesture engine and the One Euro filter (`npm test`, 26 tests). Browser behavior is verified manually before release: startup, calibration, click assist, click, drag, scroll, the permission page, minimizing and restoring the camera bubble, tab hiding, and page navigation on both a normal page and the sandbox. A headless-Chrome harness with a fake camera and synthetic hand landmarks is used during development but is not committed, so `npm test` does not exercise browser behavior. A real-camera pass in your own room is still the best check for lighting, seating distance and camera angle.
+The automated suite covers the gesture engine and the One Euro filter (`npm test`, 26 tests). Browser behavior is covered by a headless-Chrome E2E suite:
+
+```bash
+npm run test:e2e
+```
+
+It loads the unpacked extension with a fake camera, injects synthetic hand landmarks, and drives the real side panel and camera bubble. The checks cover panel start/stop, the point → dwell/pinch click → fist drag → two-finger scroll sequence, minimizing to the bubble and restoring, hidden-tab pause/resume, per-site pause/resume, and navigation between origins while the bubble is active. The command exits non-zero if any check fails. It needs Chrome or Chromium 125 or newer and Node.js 22 or newer; set `AIRSIGN_CHROME` (or `CHROME_PATH`) to the executable if it is not in a standard location. The harness launches the browser with the flags the suite requires: `--headless=new`, `--remote-debugging-port`, `--enable-unsafe-extension-debugging` (loads the unpacked extension over CDP), and `--use-fake-device-for-media-stream` plus `--use-fake-ui-for-media-stream` (a deterministic camera with no prompt). On Linux it adds `--disable-dev-shm-usage`, and on CI or as root it adds `--no-sandbox`. CI runs it on Ubuntu, and screenshots are written to `tests/e2e/artifacts/` (ignored by git).
+
+A real-camera pass in your own room is still the best check for lighting, seating distance and camera angle.
 
 ## Troubleshooting
 
